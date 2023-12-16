@@ -1,11 +1,10 @@
 function getAuthorizeUrl() {
     const clientId = 'c451b00f6a704a9593e11cc1ac6102f6';
-    const redirectUri = encodeURIComponent('http://localhost:8888/callback');
+    const redirectUri = encodeURIComponent('http://127.0.0.1:5500/index.html');
     const scopes = encodeURIComponent('user-read-currently-playing user-read-playback-state');
     return `https://accounts.spotify.com/authorize?client_id=${clientId}&response_type=code&redirect_uri=${redirectUri}&scope=${scopes}`;
 }
 
-window.location = getAuthorizeUrl();
 
 function getAuthorizationCode() {
     const queryString = window.location.search;
@@ -33,7 +32,7 @@ function getAccessToken(authCode) {
         },
         body: body
     })
-    .then(repsonse => Response.json())
+    .then(response => response.json())
     .then(data => {
         console.log(data);
         return data.access_token;
@@ -42,3 +41,21 @@ function getAccessToken(authCode) {
 
 
 }
+
+window.onload = function() {
+    const authCode = getAuthorizationCode();
+    if (authCode) {
+        getAccessToken(authCode)
+        .then(accessToken => {
+            console.log('Access token:', accessToken)
+        })
+        .catch(error => console.error('Error getting access token', error));
+    } else {
+        const spotifyLogin = document.getElementById('login');
+        const loginAuth = () => {
+            window.location = getAuthorizeUrl();
+        }
+        spotifyLogin.addEventListener('click', loginAuth);
+    };
+}
+
