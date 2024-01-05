@@ -1,3 +1,6 @@
+require('dotenv').config();
+const clientId = process.env.CLIENT_ID;
+const clientSecret = process.env.CLIENT_SECRET;
 const qs = require('qs');
 const express = require('express');
 const app = express();
@@ -15,7 +18,7 @@ app.get('/login', (req, res) => {
     const scopes = 'user-read-currently-playing user-read-playback-state';
     res.redirect('https://accounts.spotify.com/authorize' + 
     '?response_type=code' +
-    '&client_id=' + 'c451b00f6a704a9593e11cc1ac6102f6' +
+    '&client_id=' + `${clientId}` +
     (scopes ? '&scope=' + encodeURIComponent(scopes) : '') + 
     '&redirect_uri=' + encodeURIComponent('http://127.0.0.1:5501/public/index.html'))
 });
@@ -34,8 +37,8 @@ app.post('/callback', function(req, res) {
             grant_type: 'authorization_code',
             code: code,
             redirect_uri: 'http://127.0.0.1:5501/public/index.html',
-            client_id: 'c451b00f6a704a9593e11cc1ac6102f6',
-            client_secret: '109b273e43e74c1a9a25c39e893c8ff9'
+            client_id: `${clientId}`,
+            client_secret: `${clientSecret}`
         }),
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded'
@@ -95,8 +98,8 @@ function refreshAccessToken() {
         data: qs.stringify({
             grant_type: 'refresh_token',
             refresh_token: refreshToken, 
-            client_id: 'c451b00f6a704a9593e11cc1ac6102f6',
-            client_secret: '109b273e43e74c1a9a25c39e893c8ff9'
+            client_id: `${clientId}`,
+            client_secret: `${clientSecret}`
         }),
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded'
