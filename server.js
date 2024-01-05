@@ -13,6 +13,7 @@ let refreshToken;
 app.use(cors());
 app.use(express.json());
 
+refreshAccessToken();
 
 app.get('/login', (req, res) => {
     const scopes = 'user-read-currently-playing user-read-playback-state';
@@ -70,7 +71,7 @@ app.get('/currently-playing', function(req, res) {
                 albumName: track.album.name,
                 albumCoverArt: track.album.images[0].url,
                 songDuration: track.duration_ms,
-                songProgress: track.progress_ms,
+                songProgress: response.data.progress_ms,
                 playlistName: track.name
                 
 
@@ -93,7 +94,7 @@ app.get('/currently-playing', function(req, res) {
 
 function refreshAccessToken() {
     axios({
-        method: 'post',
+        method: 'POST',
         url: 'https://accounts.spotify.com/api/token',
         data: qs.stringify({
             grant_type: 'refresh_token',
@@ -115,6 +116,9 @@ function refreshAccessToken() {
         console.error('Error refreshing access token', error);
     });
 }
+
+setInterval(refreshAccessToken, 3300000);
+
 
 app.listen(port, () => {
     console.log(`Server running on port ${port}`);

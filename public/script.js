@@ -49,9 +49,24 @@ function displayTrackInfo(trackInfo) {
     document.getElementById('artistName').textContent = 'Artist: ' + trackInfo.artistName;
     document.getElementById('albumName').textContent = 'Album: ' + trackInfo.albumName;
     document.getElementById('albumArt').src = trackInfo.albumCoverArt;
-    // document.getElementById('songDuration').textContent = (trackInfo.songDuration / 1000) + ' seconds';
-    // document.getElementById('playlistName').textContent = 'Playlist' + trackInfo.playlistName;
+    
+    const trackProgress = trackTime(trackInfo.songProgress);
+    const trackDuration = trackTime(trackInfo.songDuration);
+     
+    document.getElementById('songTime').textContent = `${trackProgress} / ${trackDuration}`;
+    
 }
+
+function trackTime(ms) {
+    let seconds = Math.floor(ms / 1000);
+    let minutes = parseInt(seconds / 60); 
+    seconds = (seconds % 60);
+    if (seconds < 10) {
+        seconds = '0' + seconds;
+    }
+    return `${minutes}:${seconds}`;
+
+};
 
 function removeLogin() {
     const delBtn = document.getElementById('login');
