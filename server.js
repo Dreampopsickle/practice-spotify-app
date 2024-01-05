@@ -28,7 +28,7 @@ app.post('/callback', function(req, res) {
     }
 
     axios({
-        method: 'post', 
+        method: 'POST', 
         url: 'https://accounts.spotify.com/api/token',
         data: qs.stringify({
             grant_type: 'authorization_code',
@@ -52,7 +52,7 @@ app.post('/callback', function(req, res) {
 
 
 app.get('/currently-playing', function(req, res) {
-    axios.get('https://api.spotify.com/v1/me/player/currently-playing', {
+    axios.get('https://api.spotify.com/v1/me/player/', {
         headers: {
             'Authorization': `Bearer ${spotifyAccessToken}`
         }
@@ -67,7 +67,8 @@ app.get('/currently-playing', function(req, res) {
                 albumName: track.album.name,
                 albumCoverArt: track.album.images[0].url,
                 songDuration: track.duration_ms,
-                songProgress: response.data.progress_ms
+                songProgress: track.progress_ms,
+                playlistName: track.name
                 
 
 

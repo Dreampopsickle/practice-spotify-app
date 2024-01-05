@@ -15,7 +15,7 @@ window.onload = function() {
         .then(data => {
             console.log('Success:', data);
             fetchAndUpdate();
-            setInterval(fetchAndUpdate, 30000);
+            setInterval(fetchAndUpdate, 1000);
         })
         .catch((error) => {
             console.error('Error:', error);
@@ -24,7 +24,7 @@ window.onload = function() {
 };
 
 function fetchAndUpdate() {
-    fetchCurrentlyPlaying();
+    fetchCurrentlyPlaying()
 };
 
 function fetchCurrentlyPlaying() {
@@ -34,9 +34,9 @@ function fetchCurrentlyPlaying() {
             console.log(data);
             displayTrackInfo(data);
         })
-        .catch((error => {
+        .catch(error => {
             console.error('Error:', error);
-        }));
+        });
 }
 
 function displayTrackInfo(trackInfo) {
@@ -49,10 +49,15 @@ function displayTrackInfo(trackInfo) {
     document.getElementById('artistName').textContent = 'Artist: ' + trackInfo.artistName;
     document.getElementById('albumName').textContent = 'Album: ' + trackInfo.albumName;
     document.getElementById('albumArt').src = trackInfo.albumCoverArt;
-    document.getElementById('songDuration').textContent = (trackInfo.songDuration / 1000) + ' seconds';
-    document.getElementById('songProgress').textContent = (trackInfo.songProgress / 1000) + ' seconds';
+    // document.getElementById('songDuration').textContent = (trackInfo.songDuration / 1000) + ' seconds';
+    // document.getElementById('playlistName').textContent = 'Playlist' + trackInfo.playlistName;
 }
 
+function removeLogin() {
+    const delBtn = document.getElementById('login');
+    delBtn.parentNode.removeChild(delBtn); 
+    return false;
+}
 document.getElementById('login').addEventListener('click', function() {
     window.location.href = 'http://localhost:5502/login';
 });
