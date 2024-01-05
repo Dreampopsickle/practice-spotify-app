@@ -12,7 +12,7 @@ app.use(express.json());
 
 
 app.get('/login', (req, res) => {
-    const scopes = 'user-read-currently-playing';
+    const scopes = 'user-read-currently-playing user-read-playback-state';
     res.redirect('https://accounts.spotify.com/authorize' + 
     '?response_type=code' +
     '&client_id=' + 'c451b00f6a704a9593e11cc1ac6102f6' +
@@ -58,10 +58,30 @@ app.get('/currently-playing', function(req, res) {
         }
     })
     .then(response => {
-        res.json(response.data);
+        console.log("Spotify Repsonse:", response.data);
+        if (response.data && response.data.item) {
+            const track = response.data.item;
+            const trackInfo = {
+                songName: track.name,
+                artistName: track.artists.map(artist => artist.name).join(", "),
+                albumName: track.album.name,
+                albumCoverArt: track.album.images[0].url,
+                songDuration: track.duration_ms,
+                songProgress: response.data.progress_ms
+                
+
+
+            };
+            console.log('Sending Track Info:', trackInfo);
+            res.json(trackInfo);
+            console.log('Success');
+        } else {
+           res.status(204).send('No track is currently playing'); 
+        }
     })
     .catch(error => {
         res.status(500).send(error.message);
+        console.log('Something Failed');
     });
 });
 
