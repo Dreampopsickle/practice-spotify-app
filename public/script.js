@@ -4,15 +4,19 @@ window.onload = function() {
     const code = urlParams.get('code');
 
     if (code) {
-        fetch('http://127.0.0.1:5501/public/index.html', {
+        fetch('http://localhost:5502/callback', {
             method: "POST",
             headers: {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({ code: code })
-        }).then(response => response.json)
-          .then(data => {
-            console.log(data);
-          });
-    }
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Success:', data);
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+        });
+    }        
 };

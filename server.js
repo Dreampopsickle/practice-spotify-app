@@ -2,10 +2,14 @@ const qs = require('qs');
 const express = require('express');
 const app = express();
 const port = 5502;
+const cors = require('cors');
+const axios = require('axios');
 let spotifyAccessToken = '';
 let refreshToken;
 
-app.use(express.json())
+app.use(cors());
+app.use(express.json());
+
 
 app.get('/login', (req, res) => {
     const scopes = 'user-read-currently-playing';
@@ -41,7 +45,7 @@ app.post('/callback', function(req, res) {
         refreshToken = response.data.refresh_token;
         res.json(response.data);
     }).catch(error => {
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ error: 'Internal Server Error' });
     });
 });
 
