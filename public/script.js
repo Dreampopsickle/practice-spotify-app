@@ -14,14 +14,29 @@ window.onload = function() {
         .then(response => response.json())
         .then(data => {
             console.log('Success:', data);
-            fetchAndUpdate();
+            // refreshPage(data);
             setInterval(fetchAndUpdate, 1000);
+            clearTokenURL();
         })
         .catch((error) => {
             console.error('Error:', error);
         });
-    }        
+    } 
+     
 };
+
+function refreshPage(trackData) {
+    const trackProgress = trackTime(trackData.songProgress);
+    const trackDuration = trackTime(trackData.songDuration);
+    const timeLeft = (trackDuration - trackProgress);
+    return setTimeout(fetchAndUpdate, timeLeft)
+
+}
+
+function clearTokenURL() {
+    const newUrl = window.location.protocol + '//' + window.location.host + window.location.pathname;     
+    window.history.pushState({ path: newUrl }, '', newUrl); 
+}
 
 function fetchAndUpdate() {
     fetchCurrentlyPlaying()
@@ -38,6 +53,7 @@ function fetchCurrentlyPlaying() {
             console.error('Error:', error);
         });
 }
+
 
 function displayTrackInfo(trackInfo) {
     if (!trackInfo) {
@@ -59,8 +75,9 @@ function displayTrackInfo(trackInfo) {
 
 function trackTime(ms) {
     let seconds = Math.floor(ms / 1000);
-    let minutes = parseInt(seconds / 60); 
+    let minutes = Math.floor(ms / 60000); 
     seconds = (seconds % 60);
+    minutes = (minutes % 60);
     if (seconds < 10) {
         seconds = '0' + seconds;
     }

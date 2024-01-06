@@ -24,6 +24,7 @@ app.get('/login', (req, res) => {
     '&redirect_uri=' + encodeURIComponent('http://127.0.0.1:5501/public/index.html'))
 });
 
+
 app.post('/callback', function(req, res) {
     const code = req.body.code;
 
