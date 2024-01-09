@@ -1,3 +1,7 @@
+
+
+
+
 window.onload = function() {
     const queryString = window.location.search;
     const urlParams = new URLSearchParams(queryString);
@@ -15,7 +19,8 @@ window.onload = function() {
         .then(data => {
             console.log('Success:', data);
             // refreshPage(data);
-            setInterval(fetchAndUpdate, 1000);
+            // setInterval(fetchAndUpdate, 1000);
+
             clearTokenURL();
         })
         .catch((error) => {
@@ -24,6 +29,17 @@ window.onload = function() {
     } 
      
 };
+
+const socket = new WebSocket('wss://localhost:5502')
+
+socket.onmessage = function (event) {
+    const trackData = JSON.parse(event.data);
+    displayTrackInfo(trackData);
+};
+
+// const socket = new WebSocket('ws://localhost:5502')
+
+
 
 function refreshPage(trackData) {
     const trackProgress = trackTime(trackData.songProgress);
@@ -42,17 +58,17 @@ function fetchAndUpdate() {
     fetchCurrentlyPlaying()
 };
 
-function fetchCurrentlyPlaying() {
-    fetch('http://localhost:5502/currently-playing')
-        .then(response => response.json())
-        .then(data => {
-            console.log(data);
-            displayTrackInfo(data);
-        })
-        .catch(error => {
-            console.error('Error:', error);
-        });
-}
+// function fetchCurrentlyPlaying() {
+//     fetch('http://localhost:5502/currently-playing')
+//         .then(response => response.json())
+//         .then(data => {
+//             console.log(data);
+//             displayTrackInfo(data);
+//         })
+//         .catch(error => {
+//             console.error('Error:', error);
+//         });
+// }
 
 
 function displayTrackInfo(trackInfo) {

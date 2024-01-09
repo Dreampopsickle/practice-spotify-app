@@ -3,10 +3,14 @@ const clientId = process.env.CLIENT_ID;
 const clientSecret = process.env.CLIENT_SECRET;
 const qs = require('qs');
 const express = require('express');
+const WebSocket = require('ws');
+const https = require('https');
 const app = express();
 const port = 5502;
 const cors = require('cors');
 const axios = require('axios');
+const server = https.createServer(app);
+const wss = new WebSocket.Server({ server });
 let spotifyAccessToken = '';
 let refreshToken;
 
@@ -14,6 +18,21 @@ app.use(cors());
 app.use(express.json());
 
 refreshAccessToken();
+
+wss.on('connection', function(ws) {
+    console.log('A new client Connected!');
+    
+    ws.send(JSON.stringify({ message: 'Hello from server'}));
+
+    ws.on('message', function incoming(message) {
+        console.log('recieved: %s', message);
+    });
+
+    ws.on('close', () => console.log('Client disconnected'));
+});
+
+
+
 
 app.get('/login', (req, res) => {
     const scopes = 'user-read-currently-playing user-read-playback-state';
@@ -55,6 +74,16 @@ app.post('/callback', function(req, res) {
 });
 
 
+function broadcastNewTrack(trackInfo) {
+    wss.clients.forEach(function each(client) {
+        if (client.readyState === WebSocket.OPEN) {
+            client.send(JSON.stringify(trackInfo));
+        }
+    });
+}
+
+
+
 
 app.get('/currently-playing', function(req, res) {
     axios.get('https://api.spotify.com/v1/me/player/', {
@@ -79,6 +108,7 @@ app.get('/currently-playing', function(req, res) {
 
             };
             console.log('Sending Track Info:', trackInfo);
+            broadcastNewTrack(trackInfo)
             res.json(trackInfo);
             console.log('Success');
         } else {
@@ -118,9 +148,15 @@ function refreshAccessToken() {
     });
 }
 
-setInterval(refreshAccessToken, 3300000);
+// setInterval(refreshAccessToken, 3300000);
 
-
-app.listen(port, () => {
-    console.log(`Server running on port ${port}`);
+server.listen(port, function listening () {
+    console.log('Server listening on %d', server.address().port);
 });
+
+
+// app.listen(port, () => {
+//     console.log(`Server running on port ${port}`);
+// });
+
+// https.createServer(options, app).listen(port);
