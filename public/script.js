@@ -1,4 +1,9 @@
+const socket = new WebSocket('ws://localhost:5502')
 
+socket.onmessage = function (event) {
+    const trackData = JSON.parse(event.data);
+    displayTrackInfo(trackData);
+};
 
 
 
@@ -18,58 +23,24 @@ window.onload = function() {
         .then(response => response.json())
         .then(data => {
             console.log('Success:', data);
-            // refreshPage(data);
-            // setInterval(fetchAndUpdate, 1000);
-
-            clearTokenURL();
+            fetchAndUpdate(data);
+            clearTokenURL(); 
         })
-        .catch((error) => {
+        .catch(error => {
             console.error('Error:', error);
         });
     } 
      
 };
 
-const socket = new WebSocket('wss://localhost:5502')
-
-socket.onmessage = function (event) {
-    const trackData = JSON.parse(event.data);
-    displayTrackInfo(trackData);
-};
-
-// const socket = new WebSocket('ws://localhost:5502')
-
-
-
-function refreshPage(trackData) {
-    const trackProgress = trackTime(trackData.songProgress);
-    const trackDuration = trackTime(trackData.songDuration);
-    const timeLeft = (trackDuration - trackProgress);
-    return setTimeout(fetchAndUpdate, timeLeft)
-
-}
-
 function clearTokenURL() {
-    const newUrl = window.location.protocol + '//' + window.location.host + window.location.pathname;     
-    window.history.pushState({ path: newUrl }, '', newUrl); 
+    const newUrl = window.location.origin + window.location.pathname;     
+    window.history.replaceState({ path: newUrl }, '', newUrl); 
 }
 
-function fetchAndUpdate() {
-    fetchCurrentlyPlaying()
-};
-
-// function fetchCurrentlyPlaying() {
-//     fetch('http://localhost:5502/currently-playing')
-//         .then(response => response.json())
-//         .then(data => {
-//             console.log(data);
-//             displayTrackInfo(data);
-//         })
-//         .catch(error => {
-//             console.error('Error:', error);
-//         });
-// }
-
+// function fetchAndUpdate() {
+//     fetchCurrentlyPlaying()
+// };
 
 function displayTrackInfo(trackInfo) {
     if (!trackInfo) {
@@ -81,19 +52,14 @@ function displayTrackInfo(trackInfo) {
     document.getElementById('artistName').textContent = 'Artist: ' + trackInfo.artistName;
     document.getElementById('albumName').textContent = 'Album: ' + trackInfo.albumName;
     document.getElementById('albumArt').src = trackInfo.albumCoverArt;
-    
-    const trackProgress = trackTime(trackInfo.songProgress);
-    const trackDuration = trackTime(trackInfo.songDuration);
-     
-    document.getElementById('songTime').textContent = `${trackProgress} / ${trackDuration}`;
+    document.getElementById('songTime').textContent = formatTime(trackInfo.songDuration);
     
 }
 
-function trackTime(ms) {
+function formatTime(ms) {
     let seconds = Math.floor(ms / 1000);
-    let minutes = Math.floor(ms / 60000); 
+    let minutes = Math.floor(seconds / 60); 
     seconds = (seconds % 60);
-    minutes = (minutes % 60);
     if (seconds < 10) {
         seconds = '0' + seconds;
     }
@@ -101,11 +67,11 @@ function trackTime(ms) {
 
 };
 
-function removeLogin() {
-    const delBtn = document.getElementById('login');
-    delBtn.parentNode.removeChild(delBtn); 
-    return false;
-}
+// function removeLogin() {
+//     const delBtn = document.getElementById('login');
+//     delBtn.parentNode.removeChild(delBtn); 
+//     return false;
+
 document.getElementById('login').addEventListener('click', function() {
     window.location.href = 'http://localhost:5502/login';
 });
