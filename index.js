@@ -1,188 +1,118 @@
 require('dotenv').config();
-const clientId = process.env.CLIENT_ID;
-const clientSecret = process.env.CLIENT_SECRET;
 const express = require('express');
 const https = require('https');
+const fs = require('fs');
 const WebSocket = require('ws');
-const cors = require('cors');
+const queryString = require('querystring');
+const axios = require('axios');
+const clientId = process.env.SPOTIFY_CLIENT_ID;
+const clientSecret = process.env.SPOTIFY_CLIENT_SECRET;
+const redirectUri = process.env.SPOTIFY_REDIRECT_URI;
+const port = process.env.PORT || 3000;
 
+// Initialize Express app
 const app = express();
-const port = 5502;
-let spotifyAccessToken = '';
-let refreshToken;
-let tokenExpirationTime = 0;
 
-const wss = new WebSocket.Server({ noServer: true });
-wss.on('connection', function (ws) {
-  console.log('A new client connected!');
-  ws.send(JSON.stringify({ message: 'Hello from server' }));
-  ws.on('message', function incoming(message) {
-    console.log('received: %s', message);
-  });
-  ws.on('close', () => console.log('Client disconnected'));
-});
+// Create an HTTPS server with self-signed certificate (for local testing)
+const server = https.createServer({
+    key: fs.readFileSync('key.pem'),
+    cert: fs.readFileSync('cert.pem')
+}, app);
+const wss = new WebSocket.Server({ server });
 
-app.use(cors());
-app.use(express.json());
+let accessToken = ''; // Access token for Spotify API
+let lastTrackId = null; // Store the ID of the last track played
+const pollingInterval = 5000; // Poll every 5 seconds
+
+//Spotify OAuth URLs
+const spotifyAuthUrl = 'https://accounts.spotify.com/authorize';
+const spotifyTokenUrl = 'https://accounts.spotify.com/api/token';
 
 app.get('/login', (req, res) => {
-  const scopes = 'user-read-currently-playing user-read-playback-state';
-  res.redirect(`https://accounts.spotify.com/authorize?response_type=code&client_id=${clientId}${scopes ? '&scope=' + encodeURIComponent(scopes) : ''}&redirect_uri=${encodeURIComponent('http://127.0.0.1:5501/public/index.html')}`);
+    const queryParams = queryString.stringify({
+        client_id: clientId,
+        response_type: 'code',
+        redirect_uri: redirectUri,
+        scope: 'user-read-currently-playing user-read-playback-state',
+    });
+    res.redirect(`${spotifyAuthUrl}?${queryParams}`);
 });
 
-app.post('/callback', function (req, res) {
-  const code = req.body.code;
-  if (!code) {
-    return res.status(400).json({ error: 'Invalid or missing authorization code' });
-  }
-  const data = new URLSearchParams({
-    grant_type: 'authorization_code',
-    code: code,
-    redirect_uri: 'http://127.0.0.1:5501/public/index.html',
-    client_id: clientId,
-    client_secret: clientSecret
-  });
-  makeTokenRequest(data, (error, response) => {
-    if (error) {
-      console.error(error);
-      return res.status(500).json({ error: 'An unexpected error occurred' });
-    }
-    const { access_token, refresh_token } = response;
-    spotifyAccessToken = access_token;
-    refreshToken = refresh_token;
-    tokenExpirationTime = Date.now() + 3600 * 1000;
-    res.json({ access_token, refresh_token });
-  });
-});
-
-function makeTokenRequest(data, callback) {
-  const options = {
-    hostname: 'accounts.spotify.com',
-    path: '/api/token',
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
-      'Content-Length': data.length
-    }
-  };
-  const request = https.get(options, (response) => {
-    let responseData = '';
-    response.on('data', (chunk) => {
-      responseData += chunk;
-    });
-    response.on('end', () => {
-      const { access_token, refresh_token } = JSON.parse(responseData);
-      callback(null, { access_token, refresh_token });
-    });
-  });
-  request.on('error', (error) => {
-    callback(error);
-  });
-  request.write(data);
-  request.end();
-}
-
-app.get('/currently-playing', function (req, res) {
-  refreshAccessTokenIfNeeded();
-  const options = {
-    hostname: 'api.spotify.com',
-    path: '/v1/me/player/',
-    method: 'GET',
-    headers: {
-      'Authorization': `Bearer ${spotifyAccessToken}`
-    }
-  };
-  const request = https.get(options, (response) => {
-    let responseData = '';
-    response.on('data', (chunk) => {
-      responseData += chunk;
-    });
-    response.on('end', () => {
-      const data = JSON.parse(responseData);
-      console.log("Spotify Response:", data);
-      if (data && data.item) {
-        const track = data.item;
-        const trackInfo = {
-          songName: track.name,
-          artistName: track.artists.map(artist => artist.name).join(", "),
-          albumName: track.album.name,
-          albumCoverArt: track.album.images[0].url,
-          songDuration: track.duration_ms,
-          songProgress: data.progress_ms,
-          playlistName: track.name
-        };
-        console.log('Sending Track Info:', trackInfo);
-        wss.clients.forEach((client) => {
-          if (client.readyState === WebSocket.OPEN) {
-            client.send(JSON.stringify(trackInfo));
-          }
+app.get('/callback', async (req, res) => {
+    const code = req.query.code;
+    try {
+        const response = await axios({
+            method: 'POST',
+            url: spotifyTokenUrl,
+            data: queryString.stringify({
+                grant_type: 'authorization_code',
+                code: code,
+                redirect_uri: redirectUri
+            }),
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                Authorization: 'Basic ' + Buffer.from(clientId + ':' + clientSecret).toString('base64'),
+            },
         });
-        res.json(trackInfo);
-        console.log('Success');
-      } else {
-        res.status(204).send('No track is currently playing');
-      }
-    });
-  });
-  request.on('error', (error) => {
-    console.error(error);
-    res.status(500).send(error.message);
-  });
-  request.end();
-});
-
-function refreshAccessTokenIfNeeded() {
-  const currentTime = Date.now();
-  if (currentTime >= tokenExpirationTime - 60000) {
-    refreshAccessToken();
-  }
-}
-
-function refreshAccessToken() {
-  const data = new URLSearchParams({
-    grant_type: 'refresh_token',
-    refresh_token: refreshToken,
-    client_id: process.env.CLIENT_ID,
-    client_secret: process.env.CLIENT_SECRET
-  });
-  const options = {
-    hostname: 'accounts.spotify.com',
-    path: '/api/token',
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
-      'Content-Length': data.length
+        accessToken = response.data.access_token;
+        res.redirect('/'); // Redirect to the main page after successful
+    } catch (error) {
+        res.status(500).send('Authentication Failed');
     }
-  };
-  const request = https.get(options, (response) => {
-    let responseData = '';
-    response.on('data', (chunk) => {
-      responseData += chunk;
-    });
-    response.on('end', () => {
-      const { access_token, refresh_token } = JSON.parse(responseData);
-      spotifyAccessToken = access_token;
-      if (refresh_token) {
-        refreshToken = refresh_token;
-      }
-      tokenExpirationTime = Date.now() + 3600 * 1000;
-    });
-  });
-  request.on('error', (error) => {
-    console.error(error);
-    refreshToken = null;
-    tokenExpirationTime = 0;
-  });
-  request.write(data);
-  request.end();
-}
-
-const server = app.listen(port, function listening() {
-  console.log('Server listening on %d', server.address().port);
 });
 
-server.on('upgrade', (request, socket, head) => {
-  wss.handleUpgrade(request, socket, head, (ws) => {
-    wss.emit('connection', ws, request);
-  });
+const getCurrentTrackFromSpotify = async () => {
+    if (!accessToken) return null;
+
+    try {
+        const response = await axios.get('https://api.spotify.com/v1/plaer/currently-playing', {
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+
+            },
+        });
+
+        if (response.status === 204 || !response.data) return null;
+
+        const trackData = {
+            id: response.data.item.id,
+            name: response.data.item.name,
+            artist: response.data.item.artists.map(artist => artist.name).join(', '),
+            album: response.data.item.album.name,
+            albumImageUrl: response.data.item.album.images[0].url,
+        };
+
+        return trackData;
+    } catch (error) {
+        console.error('Error fetching track from Spotify:', error);
+        return null;
+    }
+};
+
+const broadcastToClients = (trackInfo) => {
+    wss.clients.forEach(client => {
+        if (client.readyState === WebSocket.OPEN) {
+            client.send(JSON.stringify(trackInfo));
+        }
+    });
+};
+
+const fetchAndBroadcastCurrentPlaying = async () => {
+    const currentTrack = await getCurrentTrackFromSpotify();
+
+    if (currentTrack && currentTrack.id !== lastTrackId) {
+        lastTrackId = currentTrack.id;
+        broadcastToClients(currentTrack);
+    }
+};
+
+setInterval(fetchAndBroadcastCurrentPlaying, pollingInterval);
+
+//Serve Static Files
+
+app.use(express.static('public'));
+
+server.listen(port, () => {
+    console.log(`Server is running on https://localhost:${port}`);
 });
+
