@@ -1,77 +1,49 @@
-const socket = new WebSocket('ws://localhost:5502')
-
-socket.onmessage = function (event) {
-    const trackData = JSON.parse(event.data);
-    displayTrackInfo(trackData);
-};
-
-
-
-window.onload = function() {
-    const queryString = window.location.search;
-    const urlParams = new URLSearchParams(queryString);
-    const code = urlParams.get('code');
-
-    if (code) {
-        fetch('http://localhost:5502/callback', {
-            method: "POST",
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ code: code })
-        })
-        .then(response => response.json())
-        .then(data => {
-            console.log('Success:', data);
-            fetchAndUpdate(data);
-            clearTokenURL(); 
-        })
-        .catch(error => {
-            console.error('Error:', error);
-        });
-    } 
-     
-};
-
-function clearTokenURL() {
-    const newUrl = window.location.origin + window.location.pathname;     
-    window.history.replaceState({ path: newUrl }, '', newUrl); 
-}
-
-// function fetchAndUpdate() {
-//     fetchCurrentlyPlaying()
-// };
-
-function displayTrackInfo(trackInfo) {
-    if (!trackInfo) {
-        console.log('No track info available');
+document.addEventListener('DOMContentLoaded', () => {
+    const trackInfoDiv = document.getElementById('trackInfo');
+    if (!trackInfoDiv) {
+        console.error('trackInfoDiv element not found.')
         return;
     }
-    console.log(trackInfo);
-    document.getElementById('songName').textContent = 'Song: ' + trackInfo.songName;
-    document.getElementById('artistName').textContent = 'Artist: ' + trackInfo.artistName;
-    document.getElementById('albumName').textContent = 'Album: ' + trackInfo.albumName;
-    document.getElementById('albumArt').src = trackInfo.albumCoverArt;
-    document.getElementById('songTime').textContent = formatTime(trackInfo.songDuration);
-    
-}
 
-function formatTime(ms) {
-    let seconds = Math.floor(ms / 1000);
-    let minutes = Math.floor(seconds / 60); 
-    seconds = (seconds % 60);
-    if (seconds < 10) {
-        seconds = '0' + seconds;
-    }
-    return `${minutes}:${seconds}`;
+    // Connect to Websocket Server
+    const ws = new WebSocket('ws://localhost:5502');
+    ws.onopen = () => console.log('WebSocket connection established.');
+    ws.onerror = (error) => console.error('WebSocket Error:', error);
 
+    ws.onmessage = (event) => {
+        try {
+            const track = JSON.parse(event.data);
+            console.log("Received track data:", track);
+            if (track) {
+                trackInfoDiv.innerHTML = `
+                <h2>${track.name}</h2>
+                <p>Artist: ${track.artist}</p>
+                <p>Album: ${track.album}</p>
+                <img src="${track.albumImageUrl}" alt="${track.album}">
+                `;
+            } else {
+                trackInfoDiv.innerHTML = "<p>No Track is currently playing</p>";
+            }
+        } catch (error) {
+            console.error("Error processing WebSocket message:", error);
+        }
+    };
+});
+
+
+localStorage.setItem('isLoggedIn', 'true');
+
+if(localStorage.getItem('isLoggedIn') === 'true') {
+    console.log('User is authenticated');
+} else {
+    console.log('User is not authenticated');
 };
 
-// function removeLogin() {
-//     const delBtn = document.getElementById('login');
-//     delBtn.parentNode.removeChild(delBtn); 
-//     return false;
 
-document.getElementById('login').addEventListener('click', function() {
-    window.location.href = 'http://localhost:5502/login';
-});
+function logOut() {
+    localStorage.removeItem('isLoggedIn');
+    window.location.href = 'http://localhost:5501/logged.html';
+};
+
+
+
