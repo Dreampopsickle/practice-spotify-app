@@ -58,56 +58,97 @@ app.get('/login', (req, res) => {
 });
 
 app.get('/callback', async (req, res) => {
-    const code = req.query.code;
-    try {
-        const response = await axios({
-            method: 'POST',
+    const code = req.query.code || null;
+    const state = req.query.state || null;
+    const storedState = req.cookies ? req.cookies[stateKey] : null;
+
+    if (state === null || state !== storedState) {
+        
+        res.redirect('/#' + queryString.stringify({ error: 'state_mismatch'}))
+        
+        return;
+
+    } else {
+        res.clearCookie(stateKey);
+        var authOptions = {
             url: spotifyTokenUrl,
-            data: queryString.stringify({
-                grant_type: 'authorization_code',
+            form: {
                 code: code,
-                redirect_uri: redirectUri
-            }),
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-                Authorization: 'Basic ' + Buffer.from(clientId + ':' + clientSecret).toString('base64'),
+                redirect_uri: redirectUri,
+                grant_type: 'authorization_code'
             },
+            headers: {
+                'content-type': 'application/x-www-form-urlencoded',
+                Authorization: 'Basic ' + (new Buffer.from(clientId + ':' + clientSecret).toString('base64'))
+            },
+            json: true
+        };
+
+        request.post(authOptions, function(error, response, body){
+            if (!error && response.statusCode === 200) {
+                    accessToken = body.access_token
+                    refreshToken = body.refresh_token;
+                    console.log('Access Token:' + accessToken);
+
+                const options = {
+                    url: 'https://api.spotify.com/v1/me',
+                    headers: { 'Authorization' : 'Bearer ' + accessToken}
+                };
+
+                request.get(options, function(error, response, body){
+                    console.log(body);
+                });
+
+                res.redirect('/#' + 
+                    queryString.stringify({
+                        access_token: accessToken,
+                        refresh_token: refreshToken
+                    }));
+            } else {
+                res.redirect('/#' + queryString.stringify({
+                    error: 'invalid_token'
+                }));
+                console.error(error);
+            }
         });
-        accessToken = response.data.access_token;
-        refreshToken = response.data.refresh_token;
-        console.log('Access token set:', accessToken);
-        res.redirect('/authenticated'); // Redirect to the main page after successful
-    } catch (error) {
-        console.error('Error during Spotify authentication:', error);
-        res.status(500).send('Authentication Failed');
     }
 });
 
-const refreshAccessToken = async () => {
-    try {
-        const response = await axios({
-            method: 'POST',
-            url: spotifyTokenUrl,
-            data: queryString.stringify({
-                grant_type: 'refresh_token',
-                refresh_token: refreshToken
-            }),
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-                Authorization: 'Basic ' + Buffer.from(`${clientId}:${clientSecret}`).toString('base64'),
-            },
+app.get('/refresh_token', function(req, res) {
+
+    refreshToken = req.query.refresh_token;
+    const authOptions = {
+        url: spotifyTokenUrl,
+        headers: {
+            'content-type': 'application/x-www-form-urlencoded',
+            'Authorization': 'Basic' + (new Buffer.from(clientId + ':' + clientSecret).toString('base64')) 
+        },
+        form: {
+            grant_type: 'refresh_token',
+            refresh_token: refreshToken
+        },
+        json: true
+    };
+
+    request.post(authOptions, function(error, response, body){
+        if (!error && response.statusCode === 200) {
+            accessToken = body.access_token,
+            refreshToken = body.refresh_token;
+        res,send({
+            'access_token': accessToken,
+            'refresh_token': refreshToken
         });
-        accessToken = response.data.access_token;
-        console.log('Access token refreshed:', accessToken);
-    } catch (error) {
-        console.error('Error refreshing access token:', error);
-    }
-};
+        }
+    });
+});
+    
 
 app.get('/authenticated', (req, res) => {
-    res.sendFile(__dirname + '/public/authenticated.html');
+    res.sendFile(__dirname + '/public/authenticated.html')
+    // getCurrentTrackFromSpotify();
 });
 const getCurrentTrackFromSpotify = async () => {
+    // refreshAccessToken();
     if (!accessToken) {
         console.log('No access token available.');
         return null;
@@ -148,7 +189,7 @@ const broadcastToClients = (trackInfo) => {
 };
 
 const fetchAndBroadcastCurrentPlaying = async () => {
-    const currentTrack = await getCurrentTrackFromSpotify();
+    const currentTrack = await getCurrentTrackFromSpotify(); 
 
     if (currentTrack && currentTrack.id !== lastTrackId) {
         lastTrackId = currentTrack.id;
@@ -157,11 +198,13 @@ const fetchAndBroadcastCurrentPlaying = async () => {
         console.log('No new track to broadcast or track is the same as the last one.');
     }
 };
+fetchAndBroadcastCurrentPlaying();
+// const tokenRefreshInterval = 3600000;
+// setInterval(refreshToken, tokenRefreshInterval);
+// setInterval(fetchAndBroadcastCurrentPlaying, pollingInterval);
 
-setInterval(fetchAndBroadcastCurrentPlaying, pollingInterval);
-const tokenRefreshInterval = 3600000;
 
-setInterval(refreshAccessToken, tokenRefreshInterval);
+
 
 //Serve Static Files
 

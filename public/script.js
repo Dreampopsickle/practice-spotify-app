@@ -42,7 +42,7 @@ if(localStorage.getItem('isLoggedIn') === 'true') {
 
 function logOut() {
     localStorage.removeItem('isLoggedIn');
-    window.location.href = 'http://localhost:5501/logged.html';
+    window.location.href = 'http://localhost:5502/logged.html';
 };
 
 
