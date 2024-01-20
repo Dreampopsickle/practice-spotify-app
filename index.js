@@ -45,16 +45,22 @@ app.use(express.static(__dirname + '/public'))
 app.get('/login', (req, res) => {
 
     const state = generateRandomString(16);
-    // res.cookie(stateKey, state);
+    res.cookie(stateKey, state);
 
-    const scope = 'user-read-currently-playing user-read-playback-state';
-    res.redirect(spotifyAuthUrl + queryString.stringify({
+    const params = {
         response_type: 'code',
         client_id: clientId,
-        scope: scope,
+        scope: 'user-read-currently-playing user-read-playback-state',
         redirect_uri: redirectUri,
         state: state
-    }));
+    };
+
+    // construct full URL for redirection
+
+    const authUrl = `${spotifyAuthUrl}?${queryString.stringify(params)}`;
+
+    //Redirect to Spotify's auth page
+    res.redirect(authUrl);
 });
 
 app.get('/callback', async (req, res) => {
@@ -64,65 +70,46 @@ app.get('/callback', async (req, res) => {
 
     if (state === null || state !== storedState) {
         
-        res.redirect('/#' + queryString.stringify({ error: 'state_mismatch'}))
-        
+        res.redirect('/#' + queryString.stringify({ error: 'state_mismatch'}));
         return;
 
-    } else {
-        res.clearCookie(stateKey);
-        var authOptions = {
-            url: spotifyTokenUrl,
-            form: {
-                code: code,
-                redirect_uri: redirectUri,
-                grant_type: 'authorization_code'
-            },
+    } 
+    
+    res.clearCookie(stateKey);
+
+    try {
+        const tokenResponse = await axios.post(spotifyTokenUrl, queryString.stringify({
+            code: code, 
+            redirect_uri: redirectUri,
+            grant_type: 'authorization_code'
+        }), {
             headers: {
-                'content-type': 'application/x-www-form-urlencoded',
-                Authorization: 'Basic ' + (new Buffer.from(clientId + ':' + clientSecret).toString('base64'))
-            },
-            json: true
-        };
-
-        request.post(authOptions, function(error, response, body){
-            
-            if (error) {
-                console.error('Error making token exchange request:', error);
-            };
-
-            if (response.statusCode !== 200) {
-                console.error('Token exchange failed: ', body);
-                return res.status(response.statusCode).json({ error: body });
-            }
-            
-            if (!error && response.statusCode === 200) {
-                    accessToken = body.access_token;
-                    refreshToken = body.refresh_token;
-                    console.log('Access Token:' + accessToken);
-
-                const options = {
-                    url: 'https://api.spotify.com/v1/me',
-                    headers: { 'Authorization' : 'Bearer ' + accessToken}
-                };
-
-                request.get(options, function(error, response, body){
-                    console.log(body);
-                });
-
-                res.redirect('/#' + 
-                    queryString.stringify({
-                        access_token: accessToken,
-                        refresh_token: refreshToken
-                    }));
-            } else {
-                res.redirect('/#' + queryString.stringify({
-                    error: 'invalid_token'
-                }));
-                console.error(error);
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'Authorization': 'Basic' + Buffer.from(clientId + ':' + clientSecret).toString('base64')  
             }
         });
+
+        accessToken = tokenResponse.data.access_token;
+        refreshToken = tokenResponse.data.refresh_token;
+        console.log('Access Token:', accessToken);
+
+        const userResponse = await axios.get('https://api.spotify.com/v1/me', {
+            headers: { 'Authorization': 'Bearer' + accessToken }
+        });
+
+        console.log(userResponse.data);
+
+        res.redirect('/#' + queryString.stringify({
+            access_token: accessToken,
+            refresh_token: refreshToken
+        }));
+
+    } catch (error) {
+        console.error('Error in token exchange or fetching user details:', error);
+        res.redirect('/#' + queryString.stringify({ error: 'invalid_token'}));
     }
 });
+
 
 app.get('/refresh_token', function(req, res) {
 
