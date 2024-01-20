@@ -45,7 +45,7 @@ app.use(express.static(__dirname + '/public'))
 app.get('/login', (req, res) => {
 
     const state = generateRandomString(16);
-    res.cookie(stateKey, state);
+    // res.cookie(stateKey, state);
 
     const scope = 'user-read-currently-playing user-read-playback-state';
     res.redirect(spotifyAuthUrl + queryString.stringify({
@@ -85,8 +85,18 @@ app.get('/callback', async (req, res) => {
         };
 
         request.post(authOptions, function(error, response, body){
+            
+            if (error) {
+                console.error('Error making token exchange request:', error);
+            };
+
+            if (response.statusCode !== 200) {
+                console.error('Token exchange failed: ', body);
+                return res.status(response.statusCode).json({ error: body });
+            }
+            
             if (!error && response.statusCode === 200) {
-                    accessToken = body.access_token
+                    accessToken = body.access_token;
                     refreshToken = body.refresh_token;
                     console.log('Access Token:' + accessToken);
 
@@ -130,11 +140,27 @@ app.get('/refresh_token', function(req, res) {
         json: true
     };
 
-    request.post(authOptions, function(error, response, body){
+    request.post(authOptions, function(error, response, body) {
+        if (error) {
+            console.error('Error during token refresh:', error);
+            return res.sendStatus(500);
+        }
+
+        if (response.statusCode !== 200) {
+            console.error('Token refresh failed:', body)
+            return res.status(response.statusCode).json({ error: body });
+        }
+
+        const newAccessToken = body.access_token;
+        const newRefreshToken = body.refresh_token || currentRefreshToken;
+
+
+
+
         if (!error && response.statusCode === 200) {
-            accessToken = body.access_token,
-            refreshToken = body.refresh_token;
-        res,send({
+            accessToken = newAccessToken,
+            refreshToken = newRefreshToken;
+        res.send({
             'access_token': accessToken,
             'refresh_token': refreshToken
         });
@@ -148,6 +174,9 @@ app.get('/authenticated', (req, res) => {
     // getCurrentTrackFromSpotify();
 });
 const getCurrentTrackFromSpotify = async () => {
+
+
+
     // refreshAccessToken();
     if (!accessToken) {
         console.log('No access token available.');
