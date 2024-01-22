@@ -20,6 +20,9 @@ const app = express();
 const server = http.createServer(app)
 const ws = new WebSocket.Server({ server });
 
+
+
+
 let accessToken = ''; // Access token for Spotify API
 let refreshToken = ''; // store refresh token
 let lastTrackId = null; // Store the ID of the last track played
@@ -242,6 +245,11 @@ const getCurrentTrackFromSpotify = async () => {
             artist: response.data.item.artists.map(artist => artist.name).join(', '),
             album: response.data.item.album.name,
             albumImageUrl: response.data.item.album.images[0].url,
+            isPlaying: response.data.is_playing,
+            trackDuration: response.data.item.duration_ms,
+            trackProgress: response.data.progress_ms,
+
+
         };
 
         return trackData;
@@ -260,20 +268,44 @@ const broadcastToClients = (trackInfo) => {
     });
 };
 
-const fetchAndBroadcastCurrentPlaying = async () => {
-    const currentTrack = await getCurrentTrackFromSpotify(); 
+ws.on('connection', function connection(ws) {
+    console.log('A new client connected!');
+    
+    ws.on('message', function incoming(message) {
+        console.log('received: %s', message);
+    });
+    const fetchAndBroadcastCurrentPlaying = async () => {
+        try {
+            const currentTrack = await getCurrentTrackFromSpotify(); 
 
-    if (currentTrack && currentTrack.id !== lastTrackId) {
-        lastTrackId = currentTrack.id;
-        broadcastToClients(currentTrack);
-    } else {
-        console.log('No new track to broadcast or track is the same as the last one.');
-    }
-};
-// fetchAndBroadcastCurrentPlaying();
+            if (currentTrack && currentTrack.id !== lastTrackId) {
+                lastTrackId = currentTrack.id;
+                ws.send(JSON.stringify(currentTrack));
+                broadcastToClients(currentTrack); 
+            }
+        } catch (error) {
+            console.error('Error fetching track from Spotify:', error);
+        }
+
+        setTimeout(fetchAndBroadcastCurrentPlaying, 5000);
+    };
+    fetchAndBroadcastCurrentPlaying();
+});
+
+// const fetchAndBroadcastCurrentPlaying = async () => {
+    
+
+//     if (currentTrack && currentTrack.id !== lastTrackId) {
+//         lastTrackId = currentTrack.id;
+//         broadcastToClients(currentTrack);
+//     } else {
+//         // console.log('No new track to broadcast or track is the same as the last one.');
+//     }
+// };
+// fetchAndBroadcastCurrentPlaying(ws);
 // const tokenRefreshInterval = 3600000;
 // setInterval(refreshToken, tokenRefreshInterval);
-setInterval(fetchAndBroadcastCurrentPlaying, pollingInterval);
+// setInterval(fetchAndBroadcastCurrentPlaying, pollingInterval);
 
 
 

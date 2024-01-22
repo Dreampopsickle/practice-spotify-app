@@ -1,20 +1,24 @@
-const socket = new WebSocket('ws://localhost:5502');
+// const host = window.location.host;
+const socket = new WebSocket(`ws://localhost:5502`);
 
 socket.onopen = function(event) {
     console.log('WebSocket connection established', event);
 };
 
-socket.onmessage = function(event) {
-    console.log("Data received:", event.data);
+socket.onmessage = (event) => {
+    // console.log("Data received:", event.data);
     const trackInfo = JSON.parse(event.data);
-    updateTrackInfo(trackInfo);
+    console.log('Track info recieved:', trackInfo)
+
+    updateTrackInfoUI(trackInfo);
+    updateTimer(trackInfo.progress_ms, trackInfo.duration_ms);
 };
 
 socket.onerror = function(error) {
     console.error('WebSocket Error:', error);
 };
 
-function updateTrackInfo(trackInfo) {
+function updateTrackInfoUI(trackInfo) {
     const trackInfoDiv = document.getElementById('trackInfo');
 
     if (trackInfo && trackInfoDiv) {
@@ -24,16 +28,27 @@ function updateTrackInfo(trackInfo) {
         <p><strong>Artist:</strong> ${trackInfo.artist}</p>
         <p><strong>Album:</strong> ${trackInfo.album}</p>
         <img src="${trackInfo.albumImageUrl}" alt="Album Cover" style="width:200px;">
+        <p>${trackInfo.trackProgress}:${trackInfo.trackDuration}</p>
         `;
     } else {
         trackInfoDiv.innerHTML = "<p>No track is currently playing.</p>";
     }
 }
 
-window.onunload = function() {
-    socket.close();
+socket.onclose = function (event) {
+    console.log('WebSocket connection closed', event);
 }
+//toDO: set up track timer
 
+function updateTimer(progress, duration) {
+    const startTime = Date.now() - progress;
+    function update() {
+        const elapsed = Date.now() - startTime;
+        const timeLeft = duration - elapsedTime;
+        return 
+
+    }
+}
 
 
 
