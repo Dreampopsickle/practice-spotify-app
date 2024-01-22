@@ -6,11 +6,19 @@
     <title>practice-spotify-app</title>
     <link href="css/output.css" rel="stylesheet">
 </head>
-<body>
+<body class="flex justify-center">
     <main>
-        <div class="text-3xl" id="trackInfo"></div>
+        <div class="flex-col" id="trackInfo">
+            <h5 class="text-4xl">Now Playing:</h5>
+                <p id="trackName"><strong>Track:</strong></p>
+                <p id="artistName"><strong>Artist:</strong></p>
+                <p id="albumName"><strong>Album:</strong></p>
+                <img id="albumCover" src="" alt="album-cover-art">
+            <!-- <p></p>  this is where a timer will be: todo--> 
 
-        <button onClick="logOut()">Log Out</button>
+        </div>
+
+        <button type="button" class="h-12 w-18 transform rounded-lg border-2 border-green-500 bg-white text-sm px-5 py-2.5 me-2 mb-2 text-green-500 duration-500 hover:-translate-y-3 hover:bg-green-500 hover:text-white" onClick="logOut()">Log Out</button>
     </main>
     
 

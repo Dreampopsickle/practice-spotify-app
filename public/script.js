@@ -20,16 +20,17 @@ socket.onerror = function(error) {
 
 function updateTrackInfoUI(trackInfo) {
     const trackInfoDiv = document.getElementById('trackInfo');
+    const trackName = document.getElementById('trackName');
+    const trackArtist = document.getElementById('artistName');
+    const trackAlbum = document.getElementById('albumName');
+    const trackCover = document.getElementById('albumCover');
 
     if (trackInfo && trackInfoDiv) {
-        trackInfoDiv.innerHTML = `
-        <h2>Now Playing</h2>
-        <p><strong>Track:</strong> ${trackInfo.name}</p>
-        <p><strong>Artist:</strong> ${trackInfo.artist}</p>
-        <p><strong>Album:</strong> ${trackInfo.album}</p>
-        <img class="album-cover" src="${trackInfo.albumImageUrl}" alt="Album Cover">
-        <p>${trackInfo.trackProgress}:${trackInfo.trackDuration}</p>
-        `;
+        trackName.textContent = "Track: " + trackInfo.name;
+        trackArtist.textContent = "Artist: " + trackInfo.artist;
+        trackAlbum.textContent = "Album: " + trackInfo.album;
+        trackCover.src = trackInfo.albumImageUrl;
+        
     } else {
         trackInfoDiv.innerHTML = "<p>No track is currently playing.</p>";
     }
