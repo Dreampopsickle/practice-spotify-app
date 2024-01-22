@@ -1,34 +1,40 @@
-document.addEventListener('DOMContentLoaded', () => {
+const socket = new WebSocket('ws://localhost:5502');
+
+socket.onopen = function(event) {
+    console.log('WebSocket connection established', event);
+};
+
+socket.onmessage = function(event) {
+    console.log("Data received:", event.data);
+    const trackInfo = JSON.parse(event.data);
+    updateTrackInfo(trackInfo);
+};
+
+socket.onerror = function(error) {
+    console.error('WebSocket Error:', error);
+};
+
+function updateTrackInfo(trackInfo) {
     const trackInfoDiv = document.getElementById('trackInfo');
-    if (!trackInfoDiv) {
-        console.error('trackInfoDiv element not found.')
-        return;
+
+    if (trackInfo && trackInfoDiv) {
+        trackInfoDiv.innerHTML = `
+        <h2>Now Playing</h2>
+        <p><strong>Track:</strong> ${trackInfo.name}</p>
+        <p><strong>Artist:</strong> ${trackInfo.artist}</p>
+        <p><strong>Album:</strong> ${trackInfo.album}</p>
+        <img src="${trackInfo.albumImageUrl}" alt="Album Cover" style="width:200px;">
+        `;
+    } else {
+        trackInfoDiv.innerHTML = "<p>No track is currently playing.</p>";
     }
+}
 
-    // Connect to Websocket Server
-    const ws = new WebSocket('ws://localhost:5502');
-    ws.onopen = () => console.log('WebSocket connection established.');
-    ws.onerror = (error) => console.error('WebSocket Error:', error);
+window.onunload = function() {
+    socket.close();
+}
 
-    ws.onmessage = (event) => {
-        try {
-            const track = JSON.parse(event.data);
-            console.log("Received track data:", track);
-            if (track) {
-                trackInfoDiv.innerHTML = `
-                <h2>${track.name}</h2>
-                <p>Artist: ${track.artist}</p>
-                <p>Album: ${track.album}</p>
-                <img src="${track.albumImageUrl}" alt="${track.album}">
-                `;
-            } else {
-                trackInfoDiv.innerHTML = "<p>No Track is currently playing</p>";
-            }
-        } catch (error) {
-            console.error("Error processing WebSocket message:", error);
-        }
-    };
-});
+
 
 
 localStorage.setItem('isLoggedIn', 'true');
