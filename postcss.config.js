@@ -1,5 +1,5 @@
 module.exports = {
-    pligins: {
+    plugins: {
         tailwindcss: {},
         autoprefixer: {},
     },
