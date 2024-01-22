@@ -1,10 +1,10 @@
 {
   "name": "practice-spotify-app",
   "version": "1.0.0",
-  "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "tailwindcss -i public/input.css -o public/css/output.css",
+    "watch": "tailwindcss -i public/input.css -o public/css/output.css --watch"
   },
   "author": "",
   "license": "ISC",
@@ -19,5 +19,10 @@
     "https": "^1.0.0",
     "qs": "^6.11.2",
     "ws": "^8.16.0"
-  }
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.4.1"
+  },
+  "keywords": [],
+  "description": ""
 }

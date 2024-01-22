@@ -27,7 +27,7 @@ function updateTrackInfoUI(trackInfo) {
         <p><strong>Track:</strong> ${trackInfo.name}</p>
         <p><strong>Artist:</strong> ${trackInfo.artist}</p>
         <p><strong>Album:</strong> ${trackInfo.album}</p>
-        <img src="${trackInfo.albumImageUrl}" alt="Album Cover" style="width:200px;">
+        <img class="album-cover" src="${trackInfo.albumImageUrl}" alt="Album Cover">
         <p>${trackInfo.trackProgress}:${trackInfo.trackDuration}</p>
         `;
     } else {
