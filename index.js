@@ -1,5 +1,6 @@
 require('dotenv').config();
 const express = require('express');
+const session = require('express-session');
 const http = require('http');
 const fs = require('fs');
 const WebSocket = require('ws');
@@ -8,6 +9,7 @@ const crypto = require('crypto');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const axios = require('axios');
+
 const clientId = process.env.SPOTIFY_CLIENT_ID;
 const clientSecret = process.env.SPOTIFY_CLIENT_SECRET;
 const redirectUri = process.env.SPOTIFY_REDIRECT_URI;
@@ -26,7 +28,28 @@ const ws = new WebSocket.Server({ server });
 let accessToken = ''; // Access token for Spotify API
 let refreshToken = ''; // store refresh token
 let lastTrackId = null; // Store the ID of the last track played
-const pollingInterval = 5000; // Poll every 5 seconds
+// const pollingInterval = 5000; // Poll every 5 seconds
+let retryAfter = 0;
+let cache = {
+    data: null,
+    expiry: null
+};
+
+// function isCacheValid() {
+//     return cache.data && cache.expiry && new Date() < cache.expiry;
+// };
+
+const requestQueue = [];
+const processQueue = () => {
+    if (requestQueue.length === 0 || retryAfter > Date.now()) {
+        return;
+    }
+    const requestFunction = requestQueue.shift();
+    requestFunction().finally(processQueue);
+        
+};
+
+
 
 //Spotify OAuth URLs
 const spotifyAuthUrl = 'https://accounts.spotify.com/authorize';
@@ -38,17 +61,37 @@ const generateRandomString = (length) => {
     .toString('hex')
     .slice(0, length);
 };
-
 const stateKey = 'spotify_auth_state';
 
 let accessTokenExpiry = 0;
+
+function setCache(key, data, ttl) {
+    const now = new Date().getTime();
+    const expires = now + ttl;
+    cache[key] = { data, expires };
+}
+
+function getCache(key) {
+    const item = cache[key];
+    if (item && item.expires > new Date().getTime()) {
+        return item.data
+    }
+    return null;
+}
 
 if (!clientId || !clientSecret) {
     console.error('Spotify client ID or secret is not set. Check your environmental variables!'); // check for ID and secret
     process.exit(1);
 };
+const secretKey = crypto.randomBytes(32).toString('hex');
+console.log('Generated Secret Key:', secretKey);
 
-
+app.use(session({
+    secret: secretKey,
+    resave: false,
+    saveUninitialized: true,
+    cookie: { secure: false }
+}));
 
 app.use(express.static(__dirname + '/public'))
     .use(cors())
@@ -114,7 +157,7 @@ app.get('/callback', async (req, res) => {
         console.log('Retrieved Token expiry', accessTokenExpiry);
         
         
-        
+        req.session.accessToken = accessToken
         setAccessToken(accessToken, accessTokenExpiry);
 
         
@@ -217,13 +260,27 @@ async function refreshTokenIfNeeded() {
 // setAccessToken(accessToken, accessTokenExpiry);
 setInterval(refreshTokenIfNeeded, 60000);
 
-const getCurrentTrackFromSpotify = async () => {
+// const CACHE_TTL = 30000;
 
 
 
-    // refreshAccessToken();
+const getCurrentTrackFromSpotify = async (callback) => {
+
+    const cacheKey = 'current_track';
+    const cachedData = getCache(cacheKey);
+
+    if (cachedData) {
+        console.log('Serving from cache');
+        return cachedData;
+    }
+
     if (!accessToken) {
         console.log('No access token available.');
+        return null;
+    }
+
+    if (retryAfter > Date.now()) {
+        console.log('Rate limit in effect. Waiting before new requests...');
         return null;
     }
 
@@ -251,12 +308,30 @@ const getCurrentTrackFromSpotify = async () => {
 
 
         };
-
+        
+        cache.data = trackData;
+        cache.expiry = new Date(new Date().getTime() + 5 * 60 * 1000);
+        const fixedCacheDuration = 120 * 1000;
+        setCache(cacheKey, trackData, fixedCacheDuration);
+        callback(trackData);
         return trackData;
     } catch (error) {
-        console.error('Error fetching track from Spotify:', error);
-        return null;
+        if (error.response && error.response.status === 429) {
+            retryAfterHeader = error.response.headers['retry-after'];
+            const retryAfterMs = (parseInt(retryAfterHeader, 10) || 1) * 1000;
+            
+            // console.log(`Rate limited. Retrying after ${retryAfterMs} milliseconds.`);
+            retryAfter = Date.now() + retryAfterMs;
+            
+            setTimeout(getCurrentTrackFromSpotify, retryAfterMs);
+        } else {
+            console.error('Error fetching track from Spotify:', error);
+            // return null;
+        }
+        
+        
     }
+    
 };
 
 const broadcastToClients = (trackInfo) => {
@@ -268,45 +343,45 @@ const broadcastToClients = (trackInfo) => {
     });
 };
 
+
+async function fetchAndBroadcastCurrentPlaying() {
+
+    if (retryAfter > Date.now()) {
+        console.log('Rate limit in effect. Skipping fetch');
+        scheduleNextFetch();
+        return;
+    }
+     const handletrackData = (currentTrack) => {
+        if (currentTrack && currentTrack.id !== lastTrackId) {
+            lastTrackId = currentTrack.id;
+            broadcastToClients(currentTrack)
+        } else {
+            console.log('No track is currently playing or track as not changed');
+        } 
+     };
+    requestQueue.push(() => getCurrentTrackFromSpotify(handletrackData));
+    processQueue();
+    scheduleNextFetch();
+}
+    
+    
+
+
+
+
+function scheduleNextFetch() {
+    const interval = 60000;
+    setTimeout(fetchAndBroadcastCurrentPlaying, interval);
+}
+
 ws.on('connection', function connection(ws) {
     console.log('A new client connected!');
     
     ws.on('message', function incoming(message) {
         console.log('received: %s', message);
     });
-    const fetchAndBroadcastCurrentPlaying = async () => {
-        try {
-            const currentTrack = await getCurrentTrackFromSpotify(); 
-
-            if (currentTrack && currentTrack.id !== lastTrackId) {
-                lastTrackId = currentTrack.id;
-                ws.send(JSON.stringify(currentTrack));
-                broadcastToClients(currentTrack); 
-            }
-        } catch (error) {
-            console.error('Error fetching track from Spotify:', error);
-        }
-
-        setTimeout(fetchAndBroadcastCurrentPlaying, 5000);
-    };
     fetchAndBroadcastCurrentPlaying();
 });
-
-// const fetchAndBroadcastCurrentPlaying = async () => {
-    
-
-//     if (currentTrack && currentTrack.id !== lastTrackId) {
-//         lastTrackId = currentTrack.id;
-//         broadcastToClients(currentTrack);
-//     } else {
-//         // console.log('No new track to broadcast or track is the same as the last one.');
-//     }
-// };
-// fetchAndBroadcastCurrentPlaying(ws);
-// const tokenRefreshInterval = 3600000;
-// setInterval(refreshToken, tokenRefreshInterval);
-// setInterval(fetchAndBroadcastCurrentPlaying, pollingInterval);
-
 
 
 
