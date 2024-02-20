@@ -98,6 +98,10 @@ app.use(express.static(__dirname + '/public'))
     .use(cors())
     .use(cookieParser());
 
+app.get('/', (req, res) => {
+    res.sendFile(path.join(--dirname, '/public/login.html'));
+});
+
 app.get('/login', (req, res) => {
 
     const state = generateRandomString(16);
@@ -225,6 +229,8 @@ app.get('/logout', (req, res) => {
     
     });
 });
+
+
 
 
 
