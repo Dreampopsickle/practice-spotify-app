@@ -99,7 +99,7 @@ app.use(express.static(__dirname + '/public'))
     .use(cookieParser());
 
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, '/public/login.html'));
+    res.redirect('/login.html');
 });
 
 app.get('/login', (req, res) => {
