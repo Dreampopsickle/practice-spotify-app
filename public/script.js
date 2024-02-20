@@ -32,6 +32,11 @@ function connectWebSocket() {
             localStorage.setItem('trackInfo', JSON.stringify(trackInfo));
             updateTrackInfoUI(trackInfo);
         }
+
+        if(data.sessionExpired) {
+            alert('Session expired Please log in again.');
+            window.location.href = '/login.html';
+        }
         
     };
 
@@ -42,7 +47,8 @@ function connectWebSocket() {
     };
 
     socket.onclose = function (event) {
-        console.log('WebSocket connection closed', event);
+        console.log('WebSocket disconnected, attempting to reconnect...');
+        setTimeout(connectWebSocket, 5000);
     }
 }
 
@@ -75,7 +81,7 @@ function logOut() {
     localStorage.removeItem('isLoggedIn');
     localStorage.removeItem('lastTrackId');
     localStorage.removeItem('trackInfo');
-    window.location.href = 'http://localhost:5502/logged.html';
+    window.location.href = 'http://localhost:5502/logout';
 };
 
 

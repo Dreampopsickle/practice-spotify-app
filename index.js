@@ -9,6 +9,7 @@ const crypto = require('crypto');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const axios = require('axios');
+const { dirname } = require('path');
 
 const clientId = process.env.SPOTIFY_CLIENT_ID;
 const clientSecret = process.env.SPOTIFY_CLIENT_SECRET;
@@ -203,12 +204,28 @@ app.get('/refresh_token', async (req, res) => {
 });
 
 
-    
+
 
 app.get('/authenticated', (req, res) => {
-    res.sendFile(__dirname + '/public/authenticated.html')
-    // getCurrentTrackFromSpotify();
+    res.redirect('/authenticated.html');
 });
+
+app.get('/logout', (req, res) => {
+    req.session.user = null;
+    req.session.destroy((err) => {
+        
+        if (err) {
+            console.log('Error destroying session during logout', err)
+            res.status(500).send("Error logging out");
+        } 
+
+        res.clearCookie('connect.sid');
+
+        res.redirect('/login.html');
+    
+    });
+});
+
 
 
 function setAccessToken(token, expiresIn) {
