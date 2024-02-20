@@ -9,7 +9,7 @@ const crypto = require('crypto');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const axios = require('axios');
-const { dirname } = require('path');
+const path = require('path');
 
 const clientId = process.env.SPOTIFY_CLIENT_ID;
 const clientSecret = process.env.SPOTIFY_CLIENT_SECRET;
