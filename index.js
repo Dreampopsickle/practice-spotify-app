@@ -98,9 +98,9 @@ app.use(express.static(path.join(__dirname, 'src')))
     .use(cors())
     .use(cookieParser());
 
-// app.get('/', (req, res) => {
-//     res.sendFile(path.join(__dirname, '/frontend/public/login.html'));
-// });
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'login.html'));
+});
 
 app.get('/login', (req, res) => {
 
