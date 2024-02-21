@@ -411,7 +411,7 @@ ws.on('connection', function connection(ws) {
 
 //Serve Static Files
 
-app.use(express.static('public'));
+app.use(express.static('src'));
 
 server.listen(port, () => {
     console.log(`Server is running on http://localhost:${port}`);
