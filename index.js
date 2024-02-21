@@ -94,13 +94,13 @@ app.use(session({
     cookie: { secure: false }
 }));
 
-app.use(express.static(__dirname + '/public'))
+app.use(express.static('frontend/public'))
     .use(cors())
     .use(cookieParser());
 
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public/login.html'));
-});
+// app.get('/', (req, res) => {
+//     res.sendFile(path.join(__dirname, '/frontend/public/login.html'));
+// });
 
 app.get('/login', (req, res) => {
 
