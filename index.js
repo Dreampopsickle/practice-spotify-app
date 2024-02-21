@@ -394,7 +394,7 @@ async function fetchAndBroadcastCurrentPlaying() {
 
 
 function scheduleNextFetch() {
-    const interval = 30500;
+    const interval = 60000;
     setTimeout(fetchAndBroadcastCurrentPlaying, interval);
 }
 
