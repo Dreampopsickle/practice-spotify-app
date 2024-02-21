@@ -211,7 +211,8 @@ app.get('/refresh_token', async (req, res) => {
 
 
 app.get('/authenticated', (req, res) => {
-    res.redirect('/authenticated.html');
+    // res.sendFile('/authenticated.html');
+    res.sendFile(path.join(__dirname, 'src', 'authenticated.html'));
 });
 
 app.get('/logout', (req, res) => {
