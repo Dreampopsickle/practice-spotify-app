@@ -99,8 +99,7 @@ app.use(express.static(path.join(__dirname, 'src')))
     .use(cookieParser());
 
 app.get('/', (req, res) => {
-    console.log(__dirname);
-    res.sendFile(('login.html'));
+    res.sendFile(path.join(__dirname, 'login.html'));
 });
 
 app.get('/login', (req, res) => {
