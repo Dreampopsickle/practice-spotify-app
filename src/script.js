@@ -1,12 +1,11 @@
-
 let lastTrackId = localStorage.getItem('lastTrackId');
 localStorage.setItem('isLoggedIn', 'true');
 
-if(localStorage.getItem('isLoggedIn') === 'true') {
+if (localStorage.getItem('isLoggedIn') === 'true') {
     console.log('User is authenticated');
     onLoginSuccess();
     const savedTrackInfo = localStorage.getItem('trackInfo');
-    if(savedTrackInfo) {
+    if (savedTrackInfo) {
         updateTrackInfoUI(JSON.parse(savedTrackInfo));
     }
 } else {
@@ -14,10 +13,9 @@ if(localStorage.getItem('isLoggedIn') === 'true') {
     //Promt for login to-do
 };
 
-
-
 function connectWebSocket() {
     const socket = new WebSocket(`wss://practice-spotify-app.onrender.com`);
+
     socket.onopen = function(event) {
         console.log('WebSocket connection established', event);
     };
@@ -39,8 +37,6 @@ function connectWebSocket() {
         }
         
     };
-
-    
     
     socket.onerror = function(error) {
         console.error('WebSocket Error:', error);
@@ -51,8 +47,6 @@ function connectWebSocket() {
         setTimeout(connectWebSocket, 5000);
     }
 }
-
-
 
 function updateTrackInfoUI(trackInfo) {
     const trackInfoDiv = document.getElementById('trackInfo');
@@ -83,6 +77,3 @@ function logOut() {
     localStorage.removeItem('trackInfo');
     window.location.href = 'http://localhost:5502/logout';
 };
-
-
-
