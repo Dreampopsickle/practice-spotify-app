@@ -15,6 +15,8 @@ const { clientId, clientSecret, redirectUri, port } = require('./config/index');
 // Initialize Express app
 const app = express();
 
+module.exports = { app };
+
 //Import Middleware
 const {
     session,
@@ -90,150 +92,180 @@ if (!clientId || !clientSecret) {
 };
 const secretKey = crypto.randomBytes(32).toString('hex');
 console.log('Generated Secret Key:', secretKey);
+module.exports = { secretKey };
 
-app.use(session({
-    secret: secretKey,
-    resave: false,
-    saveUninitialized: true,
-    cookie: { secure: false }
-}));
+//Session Configuration
+const { sessionConfig } = require('./config/sessionConfig');
 
-app.use(express.static(path.join(__dirname, 'src')))
+sessionConfig(app, secretKey);
+
+
+const setupMiddleWare = () => {
+    app.use(express.static(path.join(__dirname, 'src')))
     .use(cors())
-    .use(cookieParser());
+    .use(cookieParser())
+};
 
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'src', 'login.html'));
-});
-
-app.get('/login', (req, res) => {
-
-    const state = generateRandomString(16);
-    res.cookie(stateKey, state);
-
-    const params = {
-        response_type: 'code',
-        client_id: clientId,
-        scope: 'user-read-currently-playing user-read-playback-state',
-        redirect_uri: redirectUri,
-        state: state
-    }
-
-    // construct full URL for redirection
-
-    const authUrl = `${spotifyAuthUrl}?${queryString.stringify(params)}`;
-
-    //Redirect to Spotify's auth page
-    console.log(authUrl);
-    res.redirect(authUrl);
-    console.log('Login route is working')
-});
+setupMiddleWare();
 
 
 
-app.get('/callback', async (req, res) => {
-    const code = req.query.code || null;
-    console.log(code);
-    const state = req.query.state || null;
-    const storedState = req.cookies ? req.cookies[stateKey] : null;
+const serveLoginPage = () => {
+    app.get('/', (req, res) => {
+        res.sendFile(path.join(__dirname, 'src', 'login.html'));
+    })
+};
 
-    if (state === null || state !== storedState) {
-        
-        res.redirect('/#' + queryString.stringify({ error: 'state_mismatch'}));
-        return;
+serveLoginPage();
 
-    } 
+
+const loginRoute = () => {
+    app.get('/login', (req, res) => {
+
+        const state = generateRandomString(16);
+        res.cookie(stateKey, state);
     
-    res.clearCookie(stateKey);
-
-    try {
-        const tokenResponse = await axios.post(spotifyTokenUrl, queryString.stringify({
-            code: code, 
+        const params = {
+            response_type: 'code',
+            client_id: clientId,
+            scope: 'user-read-currently-playing user-read-playback-state',
             redirect_uri: redirectUri,
-            grant_type: 'authorization_code'
-        }), {
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-                'Authorization': 'Basic ' +  Buffer.from(clientId + ':' + clientSecret).toString('base64')  
-            }
-        });
-        console.log(tokenResponse.data);
-        accessToken = tokenResponse.data.access_token;
-        console.log('Retrieved Access Token:', accessToken);
-        refreshToken = tokenResponse.data.refresh_token;
-        console.log('Retrieved Refresh Token:', refreshToken);
-        accessTokenExpiry = tokenResponse.data.expires_in * 1000 + Date.now();
-        console.log('Retrieved Token expiry', accessTokenExpiry);
-        
-        
-        req.session.accessToken = accessToken
-        setAccessToken(accessToken, accessTokenExpiry);
-
-        
-        res.redirect('/authenticated')
-
-    } catch (error) {
-        console.error('Error in token exchange or fetching user details:', error);
-        res.redirect('/#' + queryString.stringify({ error: 'invalid_token'}));
-    }
-});
-
-
-app.get('/refresh_token', async (req, res) => {
-
-    const currentRefreshToken = req.query.refresh_token || refreshToken;
-
-    try {
-        const response = await axios.post(spotifyTokenUrl, queryString.stringify({
-            grant_type: 'refresh_token',
-            refresh_token: currentRefreshToken
-        }), {
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-                'Authorization': 'Basic ' + Buffer.from(clientId + ':' + clientSecret).toString('base64')
-            }
-        });
-
-        //Update access token and refresh token
-        accessToken = response.data.access_token;
-        refreshToken = response.data.refresh_token || refreshToken;
-        
-
-        res.send({
-            'access_token': accessToken,
-            'refresh_token': refreshToken
-        });
+            state: state
+        }
     
+        // construct full URL for redirection
     
-    } catch (error) {
-        console.error('Error during token refresh', error);
-        res.status(500).send('Internal Server Error');
-    }
-});
+        const authUrl = `${spotifyAuthUrl}?${queryString.stringify(params)}`;
+    
+        //Redirect to Spotify's auth page
+        console.log(authUrl);
+        res.redirect(authUrl);
+        console.log('Login route is working')
+    })
+}
+
+loginRoute();
 
 
 
-
-app.get('/authenticated', (req, res) => {
-    // res.sendFile('/authenticated.html');
-    res.sendFile(path.join(__dirname, 'src', 'authenticated.html'));
-});
-
-app.get('/logout', (req, res) => {
-    req.session.user = null;
-    req.session.destroy((err) => {
-        
-        if (err) {
-            console.log('Error destroying session during logout', err)
-            res.status(500).send("Error logging out");
+const callbackRoute = () => {
+    app.get('/callback', async (req, res) => {
+        const code = req.query.code || null;
+        console.log(code);
+        const state = req.query.state || null;
+        const storedState = req.cookies ? req.cookies[stateKey] : null;
+    
+        if (state === null || state !== storedState) {
+            
+            res.redirect('/#' + queryString.stringify({ error: 'state_mismatch'}));
+            return;
+    
         } 
-
-        res.clearCookie('connect.sid');
-
-        res.redirect('/login.html');
+        
+        res.clearCookie(stateKey);
     
+        try {
+            const tokenResponse = await axios.post(spotifyTokenUrl, queryString.stringify({
+                code: code, 
+                redirect_uri: redirectUri,
+                grant_type: 'authorization_code'
+            }), {
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'Authorization': 'Basic ' +  Buffer.from(clientId + ':' + clientSecret).toString('base64')  
+                }
+            });
+            console.log(tokenResponse.data);
+            accessToken = tokenResponse.data.access_token;
+            console.log('Retrieved Access Token:', accessToken);
+            refreshToken = tokenResponse.data.refresh_token;
+            console.log('Retrieved Refresh Token:', refreshToken);
+            accessTokenExpiry = tokenResponse.data.expires_in * 1000 + Date.now();
+            console.log('Retrieved Token expiry', accessTokenExpiry);
+            
+            
+            req.session.accessToken = accessToken
+            setAccessToken(accessToken, accessTokenExpiry);
+    
+            
+            res.redirect('/authenticated')
+    
+        } catch (error) {
+            console.error('Error in token exchange or fetching user details:', error);
+            res.redirect('/#' + queryString.stringify({ error: 'invalid_token'}));
+        }
+    })
+};
+
+callbackRoute();
+
+const refreshRoute = () => {
+    app.get('/refresh_token', async (req, res) => {
+
+        const currentRefreshToken = req.query.refresh_token || refreshToken;
+    
+        try {
+            const response = await axios.post(spotifyTokenUrl, queryString.stringify({
+                grant_type: 'refresh_token',
+                refresh_token: currentRefreshToken
+            }), {
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'Authorization': 'Basic ' + Buffer.from(clientId + ':' + clientSecret).toString('base64')
+                }
+            });
+    
+            //Update access token and refresh token
+            accessToken = response.data.access_token;
+            refreshToken = response.data.refresh_token || refreshToken;
+            
+    
+            res.send({
+                'access_token': accessToken,
+                'refresh_token': refreshToken
+            });
+        
+        
+        } catch (error) {
+            console.error('Error during token refresh', error);
+            res.status(500).send('Internal Server Error');
+        }
+    })
+};
+
+refreshRoute();
+
+const authStateRoute = () => {
+    app.get('/authenticated', (req, res) => {
+        // res.sendFile('/authenticated.html');
+        res.sendFile(path.join(__dirname, 'src', 'authenticated.html'));
+    })
+};
+
+authStateRoute();
+
+
+const logOutRoute = () => {
+    app.get('/logout', (req, res) => {
+        req.session.user = null;
+        req.session.destroy((err) => {
+            
+            if (err) {
+                console.log('Error destroying session during logout', err)
+                res.status(500).send("Error logging out");
+            } 
+    
+            res.clearCookie('connect.sid');
+    
+            res.redirect('/login.html');
+        
+        });
     });
-});
+};
+
+logOutRoute();
+
+
 
 
 
