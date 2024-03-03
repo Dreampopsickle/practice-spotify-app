@@ -32,63 +32,11 @@ const server = http.createServer(app)
 const ws = new WebSocket.Server({ server });
 
 
-
-
-let accessToken = ''; // Access token for Spotify API
-let refreshToken = ''; // store refresh token
-let lastTrackId = null; // Store the ID of the last track played
-// const pollingInterval = 5000; // Poll every 5 seconds
-let retryAfter = 0;
-let cache = {
-    data: null,
-    expiry: null
-};
-
-
-const requestQueue = [];
-const processQueue = () => {
-    if (requestQueue.length === 0 || retryAfter > Date.now()) {
-        return;
-    }
-    const requestFunction = requestQueue.shift();
-    requestFunction().finally(processQueue);
-        
-};
-
-
-
-//Spotify OAuth URLs
-const spotifyAuthUrl = 'https://accounts.spotify.com/authorize';
-const spotifyTokenUrl = 'https://accounts.spotify.com/api/token';
-
-const generateRandomString = (length) => {
-    return crypto
-    .randomBytes(60)
-    .toString('hex')
-    .slice(0, length);
-};
-const stateKey = 'spotify_auth_state';
-
-let accessTokenExpiry = 0;
-
-function setCache(key, data, ttl) {
-    const now = new Date().getTime();
-    const expires = now + ttl;
-    cache[key] = { data, expires };
-}
-
-function getCache(key) {
-    const item = cache[key];
-    if (item && item.expires > new Date().getTime()) {
-        return item.data
-    }
-    return null;
-}
-
 if (!clientId || !clientSecret) {
     console.error('Spotify client ID or secret is not set. Check your environmental variables!'); // check for ID and secret
     process.exit(1);
 };
+
 const secretKey = crypto.randomBytes(32).toString('hex');
 console.log('Generated Secret Key:', secretKey);
 module.exports = { secretKey };

@@ -1,3 +1,35 @@
+let cache = {
+    data: null,
+    expiry: null
+};
+const requestQueue = [];
+const processQueue = () => {
+    if (requestQueue.length === 0 || retryAfter > Date.now()) {
+        return;
+    }
+    const requestFunction = requestQueue.shift();
+    requestFunction().finally(processQueue);
+        
+};
+
+function setCache(key, data, ttl) {
+    const now = new Date().getTime();
+    const expires = now + ttl;
+    cache[key] = { data, expires };
+}
+
+function getCache(key) {
+    const item = cache[key];
+    if (item && item.expires > new Date().getTime()) {
+        return item.data
+    }
+    return null;
+}
+
+let lastTrackId = null; // Store the ID of the last track played
+let retryAfter = 0;
+
+
 const getCurrentTrackFromSpotify = async (callback) => {
 
     const cacheKey = 'current_track';

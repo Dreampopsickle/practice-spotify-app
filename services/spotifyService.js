@@ -1,3 +1,10 @@
+let accessToken = ''; // Access token for Spotify API
+let refreshToken = ''; // store refresh token
+
+//Spotify OAuth URLs
+
+const spotifyTokenUrl = 'https://accounts.spotify.com/api/token';
+
 const refreshAccessToken= async () => {
     console.log('Attempting to refresh access token with refresh token:', refreshToken);
 

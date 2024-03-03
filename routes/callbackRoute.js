@@ -1,3 +1,6 @@
+let accessTokenExpiry = 0;
+
+
 const callbackRoute = (app) => {
     app.get('/callback', async (req, res) => {
         const code = req.query.code || null;

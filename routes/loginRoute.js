@@ -1,3 +1,13 @@
+const spotifyAuthUrl = 'https://accounts.spotify.com/authorize';
+const generateRandomString = (length) => {
+    return crypto
+    .randomBytes(60)
+    .toString('hex')
+    .slice(0, length);
+};
+const stateKey = 'spotify_auth_state';
+
+
 const loginRoute = (app) => {
     app.get('/login', (req, res) => {
 
