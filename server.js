@@ -1,5 +1,3 @@
-
-
 // Import Config
 const {
     express,
@@ -15,8 +13,6 @@ const {
     redirectUri,
     port
 } = require('./config/index');
-
-
 
 // Initialize Express app
 const app = express();
@@ -111,14 +107,10 @@ const { setupMiddleWare } = require('./middleware/middlewareSetup')
 setupMiddleWare(app);
 
 
+//Serve the login page
+const { serveLoginPage } = require('./routes/serveLogin');
 
-const serveLoginPage = () => {
-    app.get('/', (req, res) => {
-        res.sendFile(path.join(__dirname, 'src', 'login.html'));
-    })
-};
-
-serveLoginPage();
+serveLoginPage(app);
 
 
 const loginRoute = () => {
