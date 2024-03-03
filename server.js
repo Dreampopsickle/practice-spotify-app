@@ -1,4 +1,3 @@
-require('dotenv').config();
 const express = require('express');
 const session = require('express-session');
 const http = require('http');
@@ -11,10 +10,8 @@ const cookieParser = require('cookie-parser');
 const axios = require('axios');
 const path = require('path');
 
-const clientId = process.env.SPOTIFY_CLIENT_ID;
-const clientSecret = process.env.SPOTIFY_CLIENT_SECRET;
-const redirectUri = process.env.SPOTIFY_REDIRECT_URI;
-const port = process.env.PORT || 3000;
+// Config/index.js - spotify credentials and shit
+const { clientId, clientSecret, redirectUri, port } = require('./config/index');
 
 // Initialize Express app
 const app = express();
