@@ -44,9 +44,6 @@ let cache = {
     expiry: null
 };
 
-// function isCacheValid() {
-//     return cache.data && cache.expiry && new Date() < cache.expiry;
-// };
 
 const requestQueue = [];
 const processQueue = () => {
@@ -142,11 +139,8 @@ logOutRoute(app);
 
 
 
+//Setup the access token
 
-function setAccessToken(token, expiresIn) {
-    accessToken = token;
-    accessTokenExpiry = Date.now() + expiresIn * 1000; // expiresIn is in seconds
-};
 
 async function refreshAccessToken() {
     console.log('Attempting to refresh access token with refresh token:', refreshToken);

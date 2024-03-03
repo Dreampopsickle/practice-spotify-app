@@ -47,4 +47,9 @@ const callbackRoute = (app) => {
     })
 };
 
+function setAccessToken(token, expiresIn) {
+    accessToken = token;
+    accessTokenExpiry = Date.now() + expiresIn * 1000; // expiresIn is in seconds
+};
+
 module.exports = { callbackRoute };
