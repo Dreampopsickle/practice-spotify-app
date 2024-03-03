@@ -101,7 +101,7 @@ const { sessionConfig } = require('./config/sessionConfig');
 
 sessionConfig(app, secretKey);
 
-
+// Middleware Setup
 const { setupMiddleWare } = require('./middleware/middlewareSetup')
 
 setupMiddleWare(app);
@@ -112,152 +112,30 @@ const { serveLoginPage } = require('./routes/serveLogin');
 
 serveLoginPage(app);
 
+//Login route
+const { loginRoute } = require('./routes/loginRoute');
 
-const loginRoute = () => {
-    app.get('/login', (req, res) => {
+loginRoute(app);
 
-        const state = generateRandomString(16);
-        res.cookie(stateKey, state);
-    
-        const params = {
-            response_type: 'code',
-            client_id: clientId,
-            scope: 'user-read-currently-playing user-read-playback-state',
-            redirect_uri: redirectUri,
-            state: state
-        }
-    
-        // construct full URL for redirection
-    
-        const authUrl = `${spotifyAuthUrl}?${queryString.stringify(params)}`;
-    
-        //Redirect to Spotify's auth page
-        console.log(authUrl);
-        res.redirect(authUrl);
-        console.log('Login route is working')
-    })
-}
+//Callback Route
+const { callbackRoute } = require('./routes/callbackRoute');
 
-loginRoute();
+callbackRoute(app);
 
+//Refresh Token Route
+const { refreshRoute } = require('./routes/refreshTokenRoute');
 
+refreshRoute(app);
 
-const callbackRoute = () => {
-    app.get('/callback', async (req, res) => {
-        const code = req.query.code || null;
-        console.log(code);
-        const state = req.query.state || null;
-        const storedState = req.cookies ? req.cookies[stateKey] : null;
-    
-        if (state === null || state !== storedState) {
-            
-            res.redirect('/#' + queryString.stringify({ error: 'state_mismatch'}));
-            return;
-    
-        } 
-        
-        res.clearCookie(stateKey);
-    
-        try {
-            const tokenResponse = await axios.post(spotifyTokenUrl, queryString.stringify({
-                code: code, 
-                redirect_uri: redirectUri,
-                grant_type: 'authorization_code'
-            }), {
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                    'Authorization': 'Basic ' +  Buffer.from(clientId + ':' + clientSecret).toString('base64')  
-                }
-            });
-            console.log(tokenResponse.data);
-            accessToken = tokenResponse.data.access_token;
-            console.log('Retrieved Access Token:', accessToken);
-            refreshToken = tokenResponse.data.refresh_token;
-            console.log('Retrieved Refresh Token:', refreshToken);
-            accessTokenExpiry = tokenResponse.data.expires_in * 1000 + Date.now();
-            console.log('Retrieved Token expiry', accessTokenExpiry);
-            
-            
-            req.session.accessToken = accessToken
-            setAccessToken(accessToken, accessTokenExpiry);
-    
-            
-            res.redirect('/authenticated')
-    
-        } catch (error) {
-            console.error('Error in token exchange or fetching user details:', error);
-            res.redirect('/#' + queryString.stringify({ error: 'invalid_token'}));
-        }
-    })
-};
+//Authenticated State Route
+const { authStateRoute } = require('./routes/authStateRoute');
 
-callbackRoute();
+authStateRoute(app);
 
-const refreshRoute = () => {
-    app.get('/refresh_token', async (req, res) => {
+//Log out Route
+const { logOutRoute } = require('./routes/logOutRoute');
 
-        const currentRefreshToken = req.query.refresh_token || refreshToken;
-    
-        try {
-            const response = await axios.post(spotifyTokenUrl, queryString.stringify({
-                grant_type: 'refresh_token',
-                refresh_token: currentRefreshToken
-            }), {
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                    'Authorization': 'Basic ' + Buffer.from(clientId + ':' + clientSecret).toString('base64')
-                }
-            });
-    
-            //Update access token and refresh token
-            accessToken = response.data.access_token;
-            refreshToken = response.data.refresh_token || refreshToken;
-            
-    
-            res.send({
-                'access_token': accessToken,
-                'refresh_token': refreshToken
-            });
-        
-        
-        } catch (error) {
-            console.error('Error during token refresh', error);
-            res.status(500).send('Internal Server Error');
-        }
-    })
-};
-
-refreshRoute();
-
-const authStateRoute = () => {
-    app.get('/authenticated', (req, res) => {
-        // res.sendFile('/authenticated.html');
-        res.sendFile(path.join(__dirname, 'src', 'authenticated.html'));
-    })
-};
-
-authStateRoute();
-
-
-const logOutRoute = () => {
-    app.get('/logout', (req, res) => {
-        req.session.user = null;
-        req.session.destroy((err) => {
-            
-            if (err) {
-                console.log('Error destroying session during logout', err)
-                res.status(500).send("Error logging out");
-            } 
-    
-            res.clearCookie('connect.sid');
-    
-            res.redirect('/login.html');
-        
-        });
-    });
-};
-
-logOutRoute();
+logOutRoute(app);
 
 
 
