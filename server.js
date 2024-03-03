@@ -1,14 +1,20 @@
-const express = require('express');
-const http = require('http');
-const fs = require('fs');
-const WebSocket = require('ws');
-const queryString = require('querystring');
-const crypto = require('crypto');
-const axios = require('axios');
-const path = require('path');
+
 
 // Import Config
-const { clientId, clientSecret, redirectUri, port } = require('./config/index');
+const {
+    express,
+    http,
+    fs,
+    WebSocket,
+    queryString,
+    crypto,
+    axios,
+    path,
+    clientId,
+    clientSecret,
+    redirectUri,
+    port
+} = require('./config/index');
 
 
 
@@ -100,13 +106,9 @@ const { sessionConfig } = require('./config/sessionConfig');
 sessionConfig(app, secretKey);
 
 
-const setupMiddleWare = () => {
-    app.use(express.static(path.join(__dirname, 'src')))
-    .use(cors())
-    .use(cookieParser())
-};
+const { setupMiddleWare } = require('./middleware/middlewareSetup')
 
-setupMiddleWare();
+setupMiddleWare(app);
 
 
 
