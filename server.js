@@ -1,20 +1,27 @@
 const express = require('express');
-const session = require('express-session');
 const http = require('http');
 const fs = require('fs');
 const WebSocket = require('ws');
 const queryString = require('querystring');
 const crypto = require('crypto');
-const cors = require('cors');
-const cookieParser = require('cookie-parser');
 const axios = require('axios');
 const path = require('path');
 
-// Config/index.js - spotify credentials and shit
+// Import Config
 const { clientId, clientSecret, redirectUri, port } = require('./config/index');
+
+
 
 // Initialize Express app
 const app = express();
+
+//Import Middleware
+const {
+    session,
+    cors,
+    cookieParser} = require('./middleware/index');
+
+
 
 // Create an HTTP server 
 const server = http.createServer(app)
