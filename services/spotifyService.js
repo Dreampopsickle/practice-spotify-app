@@ -8,7 +8,7 @@ refreshRoute(app);
 const spotifyTokenUrl = 'https://accounts.spotify.com/api/token';
 const { accessTokenExpiry } = require('../routes/callbackRoute');
 
-const refreshAccessToken = async () => {
+const refreshAccessToken = async (app) => {
     console.log('Attempting to refresh access token with refresh token:', refreshToken);
 
     if (!refreshToken) {
