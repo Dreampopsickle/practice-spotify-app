@@ -31,6 +31,8 @@ const {
 const server = http.createServer(app)
 const ws = new WebSocket.Server({ server });
 
+module.exports = { ws };
+
 
 if (!clientId || !clientSecret) {
     console.error('Spotify client ID or secret is not set. Check your environmental variables!'); // check for ID and secret
