@@ -1,3 +1,4 @@
+const { crypto } = require('../config/index')
 const spotifyAuthUrl = 'https://accounts.spotify.com/authorize';
 const generateRandomString = (length) => {
     return crypto
