@@ -1,5 +1,4 @@
 let accessTokenExpiry = 0;
-const { stateKey } = require("../routes/loginRoute");
 
 const {
   clientId,
