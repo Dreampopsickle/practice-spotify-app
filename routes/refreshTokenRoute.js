@@ -48,4 +48,4 @@ const refreshRoute = async (req, res, dependencies) => {
   }
 };
 
-module.exports = { refreshRoute };
+module.exports = { refreshRoute, accessToken, refreshToken };

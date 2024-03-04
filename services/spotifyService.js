@@ -1,4 +1,5 @@
 let { accessToken, refreshToken } = require("../routes/callbackRoute");
+let { accessToken, refreshToken } = require("../routes/refreshTokenRoute");
 //Token storage
 
 //Spotify OAuth URLs
