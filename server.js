@@ -17,7 +17,7 @@ const {
 // Initialize Express app
 const app = express();
 
-module.exports = { app };
+// module.exports = { app };
 
 //Import Middleware
 const {
