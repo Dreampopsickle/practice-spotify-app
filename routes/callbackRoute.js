@@ -1,7 +1,7 @@
 let accessTokenExpiry = 0;
 let { accessToken, refreshToken } = require("../token/token");
 
-const callbackRoute = async (res, req, dependencies) => {
+const callbackRoute = async (req, res, dependencies) => {
   const code = req.query.code || null;
   console.log(code);
   const state = req.query.state || null;
