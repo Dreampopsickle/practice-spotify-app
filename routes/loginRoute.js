@@ -35,4 +35,4 @@ const loginRoute = (app) => {
     })
 };
 
-module.exports = { loginRoute };
+module.exports = { loginRoute, stateKey };
