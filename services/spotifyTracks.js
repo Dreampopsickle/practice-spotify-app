@@ -1,6 +1,6 @@
 const { axios } = require('../config/index');
 const { ws } = require('../server');
-const { accessToken, refreshToken } = require('../token/token');
+let { accessToken, refreshToken } = require('../token/token');
 
 let cache = {
     data: null,
