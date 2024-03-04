@@ -1,12 +1,14 @@
 let accessToken = ''; // Access token for Spotify API
 let refreshToken = ''; // store refresh token
-
+const { app } = require('../server');
+const { refreshRoute } = require('../routes/refreshTokenRoute');
+refreshRoute(app);
 //Spotify OAuth URLs
 
 const spotifyTokenUrl = 'https://accounts.spotify.com/api/token';
 const { accessTokenExpiry } = require('../routes/callbackRoute');
 
-const refreshAccessToken= async () => {
+const refreshAccessToken = async () => {
     console.log('Attempting to refresh access token with refresh token:', refreshToken);
 
     if (!refreshToken) {
