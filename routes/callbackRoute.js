@@ -2,6 +2,17 @@ let accessTokenExpiry = 0;
 let { accessToken, refreshToken } = require("../token/token");
 
 const callbackRoute = async (req, res, dependencies) => {
+  const {
+    clientId,
+    clientSecret,
+    redirectUri,
+    port,
+    spotifyAuthUrl,
+    spotifyTokenUrl,
+    stateKey,
+    crypto,
+    queryString,
+  } = dependencies;
   const code = req.query.code || null;
   console.log(code);
   const state = req.query.state || null;
@@ -57,4 +68,4 @@ function setAccessToken(token, expiresIn) {
   accessTokenExpiry = Date.now() + expiresIn * 1000; // expiresIn is in seconds
 }
 
-module.exports = { callbackRoute, accessTokenExpiry };
+module.exports = { callbackRoute };
