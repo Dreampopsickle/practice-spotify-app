@@ -97,7 +97,7 @@ app.get("/", (req, res) => {
 /// Handle (kenny) logins
 const { loginRoute } = require("./routes/loginRoute");
 app.get("/login", (req, res) => {
-  loginRoute(routeDependencies);
+  loginRoute(req, res, routeDependencies);
 });
 
 // Callback Route

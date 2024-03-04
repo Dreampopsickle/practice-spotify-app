@@ -2,7 +2,7 @@ const generateRandomString = (length) => {
   return crypto.randomBytes(60).toString("hex").slice(0, length);
 };
 
-const loginRoute = () => {
+const loginRoute = (req, res, dependencies) => {
   const state = generateRandomString(16);
   res.cookie(stateKey, state);
 
