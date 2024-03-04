@@ -50,7 +50,7 @@ if (!clientId || !clientSecret) {
 }
 
 // --------------------------------------------------------------------------------
-//Set up the app
+// Set up the app
 
 // We're using Express
 const app = express();
@@ -95,30 +95,34 @@ app.get("/", (req, res) => {
 });
 
 /// Handle (kenny) logins
+const { loginRoute } = require("./routes/loginRoute");
 app.get("/login", (req, res) => {
   loginRoute(routeDependencies);
 });
 
 // Callback Route
+const { callbackRoute } = require("./routes/callbackRoute");
 app.get("/callback", (req, res) => {
   callbackRoute(req, res, routeDependencies);
 });
 
 //Refresh Token Route
+const { refreshRoute } = require("./routes/refreshTokenRoute");
 app.get("/refresh_token", async (req, res) => {
   refreshRoute(req, res, routeDependencies);
 });
 
 //Authenticated State Route
+const { authStateRoute } = require("./routes/authStateRoute");
 app.get("/authenticated", (req, res) => {
   authStateRoute(req, res, routeDependencies);
 });
 
 //Log out Route
-app.get('/logout', (req, res) => {
-    logOutRoute(req, res, routeDependencies)
+const { logOutRoute } = require("./routes/logOutRoute");
+app.get("/logout", (req, res) => {
+  logOutRoute(req, res, routeDependencies);
 });
-
 
 // -------------------------------------------------------------------------
 //Setup Refresh Token Mechanism
