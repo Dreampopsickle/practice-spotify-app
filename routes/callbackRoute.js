@@ -1,5 +1,9 @@
-let accessTokenExpiry = 0;
-let { accessToken, refreshToken } = require("../token/token");
+let {
+  accessToken,
+  refreshToken,
+  accessTokenExpiry,
+  setAccessToken
+} = require("../token/token");
 
 const callbackRoute = async (req, res, dependencies) => {
   const {
@@ -13,7 +17,7 @@ const callbackRoute = async (req, res, dependencies) => {
     crypto,
     queryString,
     axios,
-    path
+    path,
   } = dependencies;
   const code = req.query.code || null;
   console.log(code);
@@ -47,13 +51,7 @@ const callbackRoute = async (req, res, dependencies) => {
         },
       }
     );
-    console.log(tokenResponse.data);
-    accessToken = tokenResponse.data.access_token;
-    console.log("Retrieved Access Token:", accessToken);
-    refreshToken = tokenResponse.data.refresh_token;
-    console.log("Retrieved Refresh Token:", refreshToken);
-    accessTokenExpiry = tokenResponse.data.expires_in * 1000 + Date.now();
-    console.log("Retrieved Token expiry:", accessTokenExpiry);
+    module.exports = { tokenResponse };
 
     req.session.accessToken = accessToken;
     setAccessToken(accessToken, accessTokenExpiry);
@@ -65,9 +63,6 @@ const callbackRoute = async (req, res, dependencies) => {
   }
 };
 
-function setAccessToken(token, expiresIn) {
-  accessToken = token;
-  accessTokenExpiry = Date.now() + expiresIn * 1000; // expiresIn is in seconds
-}
 
-module.exports = { callbackRoute, accessToken, refreshToken };
+
+module.exports = { callbackRoute };

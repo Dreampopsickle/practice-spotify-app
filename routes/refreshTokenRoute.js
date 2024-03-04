@@ -1,4 +1,4 @@
-let { accessToken, refreshToken } = require("../routes/callbackRoute");
+let { accessToken, refreshToken, accessTokenExpiry  } = require("../token/refreshToken");
 
 const refreshRoute = async (req, res, dependencies) => {
   const {
@@ -35,19 +35,13 @@ const refreshRoute = async (req, res, dependencies) => {
     );
 
     //Update access token and refresh token
-    accessToken = response.data.access_token;
-    console.log(`Access Token updated: ${accessToken}`);
-    refreshToken = response.data.refresh_token || refreshToken;
-    console.log(`Refresh Token updated: ${refreshToken}`)
+    module.exports = { response, res };
 
-    res.send({
-      access_token: accessToken,
-      refresh_token: refreshToken,
-    });
+    
   } catch (error) {
     console.error("Error during token refresh", error);
     res.status(500).send("Internal Server Error");
   }
 };
 
-module.exports = { refreshRoute, accessToken, refreshToken };
+module.exports = { refreshRoute };

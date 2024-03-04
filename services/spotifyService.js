@@ -1,10 +1,9 @@
-let { accessToken, refreshToken } = require("../routes/callbackRoute");
-//Token storage
+let {
+  accessToken,
+  refreshToken,
+  accessTokenExpiry,
+} = require("../token/refreshToken");//Token storage
 
-//Spotify OAuth URLs
-
-// const spotifyTokenUrl = 'https://accounts.spotify.com/api/token';
-const { accessTokenExpiry } = require("../routes/callbackRoute");
 
 const refreshAccessToken = async () => {
   console.log(
@@ -53,4 +52,9 @@ const refreshTokenIfNeeded = async () => {
   }
 };
 
-module.exports = { refreshAccessToken, refreshTokenIfNeeded, accessToken, refreshToken };
+module.exports = {
+  refreshAccessToken,
+  refreshTokenIfNeeded,
+  accessToken,
+  refreshToken,
+};
