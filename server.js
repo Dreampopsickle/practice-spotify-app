@@ -69,7 +69,6 @@ const { callbackRoute } = require('./routes/callbackRoute');
 
 callbackRoute(app);
 
-const { refreshToken } = require('./token');
 
 //Refresh Token Route
 const { refreshRoute } = require('./routes/refreshTokenRoute');
