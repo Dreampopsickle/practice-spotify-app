@@ -39,6 +39,7 @@ let routeDependencies = {
   spotifyAuthUrl,
   spotifyTokenUrl,
   stateKey,
+  crypto,
 };
 
 /// Make Sure that worked
