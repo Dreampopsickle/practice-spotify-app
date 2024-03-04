@@ -1,5 +1,5 @@
 const { axios } = require('../config/index');
-const { ws } = require('../server');
+const { ws } = require('../app');
 let { accessToken, refreshToken } = require('../token/token');
 
 let cache = {

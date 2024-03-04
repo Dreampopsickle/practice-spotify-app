@@ -1,19 +1,15 @@
 const { crypto, queryString } = require('../config/index');
 const { clientId, redirectUri } = require('../config/index');
-const spotifyAuthUrl = 'https://accounts.spotify.com/authorize';
+
 const generateRandomString = (length) => {
     return crypto
     .randomBytes(60)
     .toString('hex')
     .slice(0, length);
 };
-const stateKey = 'spotify_auth_state';
 
-
-const loginRoute = (app) => {
-    app.get('/login', (req, res) => {
-
-        const state = generateRandomString(16);
+const loginRoute = () => {
+     const state = generateRandomString(16);
         res.cookie(stateKey, state);
     
         const params = {
@@ -32,7 +28,6 @@ const loginRoute = (app) => {
         console.log(authUrl);
         res.redirect(authUrl);
         console.log('Login route is working')
-    })
 };
 
 module.exports = { loginRoute, stateKey };
