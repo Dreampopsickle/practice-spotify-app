@@ -12,6 +12,8 @@ const callbackRoute = async (req, res, dependencies) => {
     stateKey,
     crypto,
     queryString,
+    axios,
+    path
   } = dependencies;
   const code = req.query.code || null;
   console.log(code);

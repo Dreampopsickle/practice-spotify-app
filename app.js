@@ -41,6 +41,8 @@ let routeDependencies = {
   stateKey,
   crypto,
   queryString,
+  axios,
+  path,
 };
 
 /// Make Sure that worked

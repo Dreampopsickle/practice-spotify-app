@@ -1,6 +1,20 @@
 let { accessToken, refreshToken } = require("../token/token");
 
 const refreshRoute = async (req, res, dependencies) => {
+  const {
+    clientId,
+    clientSecret,
+    redirectUri,
+    port,
+    spotifyAuthUrl,
+    spotifyTokenUrl,
+    stateKey,
+    crypto,
+    queryString,
+    axios,
+    path,
+  } = dependencies;
+
   const currentRefreshToken = req.query.refresh_token || refreshToken;
 
   try {
