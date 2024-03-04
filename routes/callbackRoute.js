@@ -1,12 +1,4 @@
 let accessTokenExpiry = 0;
-
-const {
-  clientId,
-  clientSecret,
-  redirectUri,
-  queryString,
-  axios,
-} = require("../config/index");
 let { accessToken, refreshToken } = require("../token/token");
 
 const callbackRoute = async (res, req, dependencies) => {
