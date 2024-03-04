@@ -53,4 +53,4 @@ const refreshTokenIfNeeded = async () => {
   }
 };
 
-module.exports = { refreshAccessToken, refreshTokenIfNeeded };
+module.exports = { refreshAccessToken, refreshTokenIfNeeded, accessToken, refreshToken };

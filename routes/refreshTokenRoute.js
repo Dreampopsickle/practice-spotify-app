@@ -1,4 +1,4 @@
-let { accessToken, refreshToken } = require("../token/token");
+let { accessToken, refreshToken } = require("../routes/callbackRoute");
 
 const refreshRoute = async (req, res, dependencies) => {
   const {

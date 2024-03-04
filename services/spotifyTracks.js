@@ -1,4 +1,4 @@
-let { accessToken, refreshToken } = require("../routes/refreshTokenRoute");
+let { accessToken, refreshToken } = require("../services/spotifyService");
 
 let cache = {
   data: null,
