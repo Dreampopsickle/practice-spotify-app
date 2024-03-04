@@ -40,6 +40,7 @@ let routeDependencies = {
   spotifyTokenUrl,
   stateKey,
   crypto,
+  queryString,
 };
 
 /// Make Sure that worked
