@@ -1,7 +1,7 @@
 let accessTokenExpiry = 0;
 const { stateKey } = require('../routes/loginRoute');
 const spotifyTokenUrl = 'https://accounts.spotify.com/api/token';
-const { clientId, clientSecret, redirectUri, queryString } = require('../config/index')
+const { clientId, clientSecret, redirectUri, queryString, axios } = require('../config/index')
 
 const callbackRoute = (app) => {
     app.get('/callback', async (req, res) => {
