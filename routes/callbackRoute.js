@@ -55,4 +55,4 @@ function setAccessToken(token, expiresIn) {
     accessTokenExpiry = Date.now() + expiresIn * 1000; // expiresIn is in seconds
 };
 
-module.exports = { callbackRoute };
+module.exports = { callbackRoute, accessTokenExpiry };
