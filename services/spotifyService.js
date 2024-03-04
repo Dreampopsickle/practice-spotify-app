@@ -1,5 +1,5 @@
-let accessToken = ''; // Access token for Spotify API
-let refreshToken = ''; // store refresh token
+const { accessToken, refreshToken } = require('../token/token')
+//Token storage
 
 
 //Spotify OAuth URLs
