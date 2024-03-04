@@ -1,4 +1,4 @@
-const { accessToken, refreshToken } = require('../token/token')
+let { accessToken, refreshToken } = require('../token/token')
 //Token storage
 
 
