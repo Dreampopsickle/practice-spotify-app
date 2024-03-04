@@ -1,4 +1,4 @@
-let { accessToken, refreshToken } = require("../token/token");
+let { accessToken, refreshToken } = require("../routes/callbackRoute");
 //Token storage
 
 //Spotify OAuth URLs
