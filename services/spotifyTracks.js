@@ -1,3 +1,4 @@
+const { axios } = require('../config/index');
 let cache = {
     data: null,
     expiry: null
