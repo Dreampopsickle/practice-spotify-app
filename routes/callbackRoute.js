@@ -53,7 +53,7 @@ const callbackRoute = async (req, res, dependencies) => {
     refreshToken = tokenResponse.data.refresh_token;
     console.log("Retrieved Refresh Token:", refreshToken);
     accessTokenExpiry = tokenResponse.data.expires_in * 1000 + Date.now();
-    console.log("Retrieved Token expiry", accessTokenExpiry);
+    console.log("Retrieved Token expiry:", accessTokenExpiry);
 
     req.session.accessToken = accessToken;
     setAccessToken(accessToken, accessTokenExpiry);
