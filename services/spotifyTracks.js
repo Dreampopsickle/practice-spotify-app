@@ -100,7 +100,7 @@ const broadcastToClients = (trackInfo, wsInstance) => {
 };
 
 const fetchAndBroadcastCurrentPlaying = async (dependencies, options) => {
-  const { ws } = options; 
+  const { wsInstance } = options; 
   if (retryAfter > Date.now()) {
     console.log("Rate limit in effect. Skipping fetch");
     scheduleNextFetch(dependencies, wsInstance);
@@ -109,7 +109,7 @@ const fetchAndBroadcastCurrentPlaying = async (dependencies, options) => {
   const handletrackData = (currentTrack) => {
     if (currentTrack && currentTrack.id !== lastTrackId) {
       lastTrackId = currentTrack.id;
-      broadcastToClients(currentTrack, ws);
+      broadcastToClients(currentTrack, wsInstance);
     } else {
       console.log("No track is currently playing or track as not changed");
     }
