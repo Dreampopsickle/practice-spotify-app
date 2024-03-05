@@ -10,7 +10,7 @@ let cache = {
 
 const requestQueue = [];
 
-const getCurrentTrackFromSpotify = async (callback, dependencies) => {
+const getCurrentTrackFromSpotify = async (callback, dependencies, wsInstance) => {
   const { axios } = dependencies;
 
 
@@ -96,24 +96,25 @@ const broadcastToClients = (trackInfo, ws) => {
 };
 
 const fetchAndBroadcastCurrentPlaying = async (dependencies, wsInstance) => { 
+  
   if (retryAfter > Date.now()) {
     console.log("Rate limit in effect. Skipping fetch");
     scheduleNextFetch(dependencies, wsInstance);
     return;
   }
-  const handletrackData = (currentTrack) => {
+  const handletrackData = (currentTrack, wsInstance) => {
     if (currentTrack && currentTrack.id !== lastTrackId) {
       lastTrackId = currentTrack.id;
-      broadcastToClients(currentTrack);
+      broadcastToClients(currentTrack, wsInstance);
     } else {
       console.log("No track is currently playing or track as not changed");
     }
   };
   requestQueue.push(() =>
-    getCurrentTrackFromSpotify(handletrackData, dependencies)
+    getCurrentTrackFromSpotify(handletrackData, dependencies, wsInstance)
   );
   processQueue();
-  scheduleNextFetch(dependencies);
+  scheduleNextFetch(dependencies, wsInstance);
 };
 
 const scheduleNextFetch = (dependencies, wsInstance) => {
