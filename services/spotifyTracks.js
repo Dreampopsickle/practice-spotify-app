@@ -97,7 +97,7 @@ const broadcastToClients = (trackInfo) => {
 const fetchAndBroadcastCurrentPlaying = async (dependencies) => {
   if (retryAfter > Date.now()) {
     console.log("Rate limit in effect. Skipping fetch");
-    scheduleNextFetch();
+    scheduleNextFetch(dependencies);
     return;
   }
   const handletrackData = (currentTrack) => {
@@ -112,10 +112,10 @@ const fetchAndBroadcastCurrentPlaying = async (dependencies) => {
     getCurrentTrackFromSpotify(handletrackData, dependencies)
   );
   processQueue();
-  scheduleNextFetch();
+  scheduleNextFetch(dependencies);
 };
 
-const scheduleNextFetch = () => {
+const scheduleNextFetch = (dependencies) => {
   const interval = 60000;
   setTimeout(fetchAndBroadcastCurrentPlaying(dependencies), interval);
 };
