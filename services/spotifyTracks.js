@@ -79,7 +79,7 @@ const getCurrentTrackFromSpotify = async (
       retryAfter = Date.now() + retryAfterMs;
 
       setTimeout(
-        () => getCurrentTrackFromSpotify(callback, dependencies),
+        () => getCurrentTrackFromSpotify(callback, dependencies, wsInstance),
         retryAfterMs
       );
     } else {
