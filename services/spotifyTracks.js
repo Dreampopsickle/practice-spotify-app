@@ -90,6 +90,9 @@ const getCurrentTrackFromSpotify = async (
 };
 
 const broadcastToClients = (trackInfo, wsInstance) => {
+  if (!wsInstance || !wsInstance.clients) {
+    console.error("WebSocket instance or clients are undefined.")
+  }
   console.log("wsInstance in broadcastToClients:", wsInstance);
   console.log("Broadcasting to clients:", trackInfo);
 
