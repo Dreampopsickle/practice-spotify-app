@@ -86,9 +86,9 @@ const getCurrentTrackFromSpotify = async (callback, dependencies, wsInstance) =>
   }
 };
 
-const broadcastToClients = (trackInfo, ws) => {
+const broadcastToClients = (trackInfo, wsInstance) => {
   console.log("Broadcasting to clients:", trackInfo);
-  ws.clients.forEach((client) => {
+  wsInstance.clients.forEach((client) => {
     if (client.readyState === WebSocket.OPEN) {
       client.send(JSON.stringify(trackInfo));
     }
