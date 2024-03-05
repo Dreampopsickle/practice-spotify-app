@@ -90,6 +90,7 @@ const getCurrentTrackFromSpotify = async (
 };
 
 const broadcastToClients = (trackInfo, wsInstance) => {
+  console.log('wsInstance:', wsInstance);
   console.log("Broadcasting to clients:", trackInfo);
   wsInstance.clients.forEach((client) => {
     if (client.readyState === WebSocket.OPEN) {
@@ -98,7 +99,8 @@ const broadcastToClients = (trackInfo, wsInstance) => {
   });
 };
 
-const fetchAndBroadcastCurrentPlaying = async (dependencies, wsInstance) => {
+const fetchAndBroadcastCurrentPlaying = async (dependencies, options) => {
+  const { ws } = options; 
   if (retryAfter > Date.now()) {
     console.log("Rate limit in effect. Skipping fetch");
     scheduleNextFetch(dependencies, wsInstance);
@@ -107,7 +109,7 @@ const fetchAndBroadcastCurrentPlaying = async (dependencies, wsInstance) => {
   const handletrackData = (currentTrack) => {
     if (currentTrack && currentTrack.id !== lastTrackId) {
       lastTrackId = currentTrack.id;
-      broadcastToClients(currentTrack, wsInstance);
+      broadcastToClients(currentTrack, ws);
     } else {
       console.log("No track is currently playing or track as not changed");
     }
