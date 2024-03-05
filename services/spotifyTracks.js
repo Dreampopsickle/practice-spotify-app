@@ -90,7 +90,7 @@ const getCurrentTrackFromSpotify = async (
 };
 
 const broadcastToClients = (trackInfo, wsInstance) => {
-  // console.log('wsInstance:', wsInstance);
+  console.log('wsInstance:', wsInstance);
   console.log("Broadcasting to clients:", trackInfo);
 
   if (wsInstance && wsInstance.clients) {
