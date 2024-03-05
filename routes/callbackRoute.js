@@ -54,6 +54,8 @@ const callbackRoute = async (req, res, dependencies) => {
       expiresIn: tokenResponse.data.expires_in,
     });
 
+    console.log(`Tokens Acquired: ${setTokens}`);
+
     res.redirect("/authenticated");
   } catch (error) {
     console.error("Error in token exchange or fetching user details:", error);
