@@ -117,7 +117,7 @@ const fetchAndBroadcastCurrentPlaying = async (dependencies) => {
 
 const scheduleNextFetch = (dependencies) => {
   const interval = 60000;
-  setTimeout(fetchAndBroadcastCurrentPlaying(dependencies), interval);
+  setTimeout(() => fetchAndBroadcastCurrentPlaying(dependencies), interval);
 };
 
 const processQueue = () => {
