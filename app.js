@@ -131,7 +131,7 @@ app.get("/logout", (req, res) => {
 // -------------------------------------------------------------------------
 //Setup Refresh Token Mechanism
 const { refreshTokenIfNeeded } = require("./services/spotifyService");
-setInterval(refreshTokenIfNeeded(routeDependencies), 60000);
+setInterval(() => refreshTokenIfNeeded(routeDependencies), 60000);
 
 // -------------------------------------------------------------------------
 //Fetch and Broadcast Spotify Data
