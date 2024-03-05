@@ -1,5 +1,4 @@
-
-const { getRefreshToken, setTokens } = require('../token/tokenManager')
+const { getRefreshToken, setTokens } = require("../token/tokenManager");
 
 const refreshRoute = async (req, res, dependencies) => {
   const {
@@ -18,8 +17,8 @@ const refreshRoute = async (req, res, dependencies) => {
 
   const refreshToken = getRefreshToken();
   if (!refreshToken) {
-    return res.status(400).send({ error: 'No refresh token available'});
-  };
+    return res.status(400).send({ error: "No refresh token available" });
+  }
 
   // const currentRefreshToken = req.query.refresh_token || refreshToken;
 
