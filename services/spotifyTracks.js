@@ -10,9 +10,9 @@ let cache = {
 
 const requestQueue = [];
 
-const getCurrentTrackFromSpotify = async (callback, dependencies, webSocket) => {
+const getCurrentTrackFromSpotify = async (callback, dependencies) => {
   const { axios } = dependencies;
-  const { ws } = webSocket;
+
 
   const accessToken = getAccessToken();
 
@@ -76,7 +76,7 @@ const getCurrentTrackFromSpotify = async (callback, dependencies, webSocket) => 
       retryAfter = Date.now() + retryAfterMs;
 
       setTimeout(
-        () => getCurrentTrackFromSpotify(callback, dependencies, ws),
+        () => getCurrentTrackFromSpotify(callback, dependencies),
         retryAfterMs
       );
     } else {
@@ -86,8 +86,7 @@ const getCurrentTrackFromSpotify = async (callback, dependencies, webSocket) => 
   }
 };
 
-const broadcastToClients = (trackInfo, webSocket) => {
-  const { ws } = webSocket;
+const broadcastToClients = (trackInfo) => {
   console.log("Broadcasting to clients:", trackInfo);
   ws.clients.forEach((client) => {
     if (client.readyState === WebSocket.OPEN) {
@@ -96,18 +95,16 @@ const broadcastToClients = (trackInfo, webSocket) => {
   });
 };
 
-const fetchAndBroadcastCurrentPlaying = async (dependencies, webSocket) => {
-  const { webSocket } = socket; 
+const fetchAndBroadcastCurrentPlaying = async (dependencies) => { 
   if (retryAfter > Date.now()) {
     console.log("Rate limit in effect. Skipping fetch");
     scheduleNextFetch(dependencies, webSocket);
     return;
   }
-  const handletrackData = (currentTrack, webSocket) => {
-    const { ws } = webSocket;
+  const handletrackData = (currentTrack) => {
     if (currentTrack && currentTrack.id !== lastTrackId) {
       lastTrackId = currentTrack.id;
-      broadcastToClients(currentTrack, ws);
+      broadcastToClients(currentTrack);
     } else {
       console.log("No track is currently playing or track as not changed");
     }
@@ -119,9 +116,9 @@ const fetchAndBroadcastCurrentPlaying = async (dependencies, webSocket) => {
   scheduleNextFetch(dependencies);
 };
 
-const scheduleNextFetch = (dependencies, webSocket) => {
+const scheduleNextFetch = (dependencies) => {
   const interval = 60000;
-  setTimeout(() => fetchAndBroadcastCurrentPlaying(dependencies, webSocket), interval);
+  setTimeout(() => fetchAndBroadcastCurrentPlaying(dependencies), interval);
 };
 
 const processQueue = () => {
