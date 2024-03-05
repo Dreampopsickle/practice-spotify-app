@@ -1,9 +1,4 @@
-let {
-  accessToken,
-  refreshToken,
-  accessTokenExpiry,
-  setAccessToken
-} = require("../token/token");
+const { setTokens } = require("../token/tokenManager");
 
 const callbackRoute = async (req, res, dependencies) => {
   const {
@@ -51,10 +46,13 @@ const callbackRoute = async (req, res, dependencies) => {
         },
       }
     );
-    module.exports = { tokenResponse };
 
-    req.session.accessToken = accessToken;
-    setAccessToken(accessToken, accessTokenExpiry);
+    // Update tokens using tokenManager
+    setTokens({
+      accessToken: tokenResponse.data.access_token,
+      refreshToken: tokenResponse.data.refresh_token,
+      expiresIn: tokenResponse.data.expires_in,
+    });
 
     res.redirect("/authenticated");
   } catch (error) {
@@ -62,7 +60,5 @@ const callbackRoute = async (req, res, dependencies) => {
     res.redirect("/#" + queryString.stringify({ error: "invalid_token" }));
   }
 };
-
-
 
 module.exports = { callbackRoute };

@@ -1,47 +1,31 @@
-let { accessToken, refreshToken } = require("../services/spotifyService");
+const { getAccessToken } = require("../token/tokenManager");
+
+let lastTrackId = null; // Store the ID of the last track played
+let retryAfter = 0;
 
 let cache = {
   data: null,
   expiry: null,
 };
+
 const requestQueue = [];
-const processQueue = () => {
-  if (requestQueue.length === 0 || retryAfter > Date.now()) {
-    return;
-  }
-  const requestFunction = requestQueue.shift();
-  requestFunction().finally(processQueue);
-};
 
-function setCache(key, data, ttl) {
-  const now = new Date().getTime();
-  const expires = now + ttl;
-  cache[key] = { data, expires };
-}
+const getCurrentTrackFromSpotify = async (callback, dependencies) => {
+  const { axios } = dependencies;
 
-function getCache(key) {
-  const item = cache[key];
-  if (item && item.expires > new Date().getTime()) {
-    return item.data;
-  }
-  return null;
-}
+  const accessToken = getAccessToken();
 
-let lastTrackId = null; // Store the ID of the last track played
-let retryAfter = 0;
-
-const getCurrentTrackFromSpotify = async (callback) => {
   const cacheKey = "current_track";
   const cachedData = getCache(cacheKey);
-
-  if (cachedData) {
-    console.log("Serving from cache");
-    return cachedData;
-  }
 
   if (!accessToken) {
     console.log("No access token available.");
     return null;
+  }
+
+  if (cachedData) {
+    console.log("Serving from cache");
+    return cachedData;
   }
 
   if (retryAfter > Date.now()) {
@@ -90,7 +74,10 @@ const getCurrentTrackFromSpotify = async (callback) => {
       // console.log(`Rate limited. Retrying after ${retryAfterMs} milliseconds.`);
       retryAfter = Date.now() + retryAfterMs;
 
-      setTimeout(getCurrentTrackFromSpotify, retryAfterMs);
+      setTimeout(
+        () => getCurrentTrackFromSpotify(callback, dependencies),
+        retryAfterMs
+      );
     } else {
       console.error("Error fetching track from Spotify:", error);
       // return null;
@@ -107,7 +94,7 @@ const broadcastToClients = (trackInfo) => {
   });
 };
 
-const fetchAndBroadcastCurrentPlaying = async () => {
+const fetchAndBroadcastCurrentPlaying = async (dependencies) => {
   if (retryAfter > Date.now()) {
     console.log("Rate limit in effect. Skipping fetch");
     scheduleNextFetch();
@@ -121,14 +108,38 @@ const fetchAndBroadcastCurrentPlaying = async () => {
       console.log("No track is currently playing or track as not changed");
     }
   };
-  requestQueue.push(() => getCurrentTrackFromSpotify(handletrackData));
+  requestQueue.push(() =>
+    getCurrentTrackFromSpotify(handletrackData, dependencies)
+  );
   processQueue();
   scheduleNextFetch();
 };
 
 const scheduleNextFetch = () => {
   const interval = 60000;
-  setTimeout(fetchAndBroadcastCurrentPlaying, interval);
+  setTimeout(fetchAndBroadcastCurrentPlaying(dependencies), interval);
+};
+
+const processQueue = () => {
+  if (requestQueue.length === 0 || retryAfter > Date.now()) {
+    return;
+  }
+  const requestFunction = requestQueue.shift();
+  requestFunction().finally(processQueue);
+};
+
+const setCache = (key, data, ttl) => {
+  const now = new Date().getTime();
+  const expires = now + ttl;
+  cache[key] = { data, expires };
+};
+
+const getCache = (key) => {
+  const item = cache[key];
+  if (item && item.expires > new Date().getTime()) {
+    return item.data;
+  }
+  return null;
 };
 
 module.exports = { fetchAndBroadcastCurrentPlaying };

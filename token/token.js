@@ -1,6 +1,4 @@
-let accessToken = ""; // Access token for Spotify API
-let refreshToken = ""; // store refresh token
-let accessTokenExpiry = 0; // The expiry for tokens
+
 
 // Gather token from callback route
 const { tokenResponse } = require("../routes/callbackRoute");

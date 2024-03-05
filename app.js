@@ -131,7 +131,7 @@ app.get("/logout", (req, res) => {
 // -------------------------------------------------------------------------
 //Setup Refresh Token Mechanism
 const { refreshTokenIfNeeded } = require("./services/spotifyService");
-setInterval(refreshTokenIfNeeded, 60000);
+setInterval(refreshTokenIfNeeded(routeDependencies), 60000);
 
 // -------------------------------------------------------------------------
 //Fetch and Broadcast Spotify Data
@@ -145,7 +145,7 @@ ws.on("connection", function connection(ws) {
   ws.on("message", function incoming(message) {
     console.log("received: %s", message);
   });
-  fetchAndBroadcastCurrentPlaying();
+  fetchAndBroadcastCurrentPlaying(routeDependencies);
 });
 
 // --------------------------------------------------------------------------
