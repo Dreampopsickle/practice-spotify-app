@@ -108,26 +108,26 @@ const broadcastToClients = (trackInfo, wsInstance) => {
 
 const fetchAndBroadcastCurrentPlaying = async (dependencies, options) => {
   // console.log('Options: ', options);
-  const { wsInstance } = options; 
-  console.log("wsInstance: ", wsInstance);
+  const { ws } = options; 
+  console.log("wsInstance: ", ws);
   if (retryAfter > Date.now()) {
     console.log("Rate limit in effect. Skipping fetch");
-    scheduleNextFetch(dependencies, wsInstance);
+    scheduleNextFetch(dependencies, ws);
     return;
   }
   const handletrackData = (currentTrack) => {
     if (currentTrack && currentTrack.id !== lastTrackId) {
       lastTrackId = currentTrack.id;
-      broadcastToClients(currentTrack, wsInstance);
+      broadcastToClients(currentTrack, ws);
     } else {
       console.log("No track is currently playing or track as not changed");
     }
   };
   requestQueue.push(() =>
-    getCurrentTrackFromSpotify(handletrackData, dependencies, wsInstance)
+    getCurrentTrackFromSpotify(handletrackData, dependencies, ws)
   );
   processQueue();
-  scheduleNextFetch(dependencies, wsInstance);
+  scheduleNextFetch(dependencies, ws);
 };
 
 const scheduleNextFetch = (dependencies, wsInstance) => {
