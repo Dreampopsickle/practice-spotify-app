@@ -97,7 +97,7 @@ const broadcastToClients = (trackInfo, webSocket) => {
 };
 
 const fetchAndBroadcastCurrentPlaying = async (dependencies, webSocket) => {
-  const webSocket = webSocket;
+  const { ws } = webSocket;
   if (retryAfter > Date.now()) {
     console.log("Rate limit in effect. Skipping fetch");
     scheduleNextFetch(dependencies);
