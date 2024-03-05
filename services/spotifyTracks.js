@@ -86,7 +86,7 @@ const getCurrentTrackFromSpotify = async (callback, dependencies) => {
   }
 };
 
-const broadcastToClients = (trackInfo) => {
+const broadcastToClients = (trackInfo, ws) => {
   console.log("Broadcasting to clients:", trackInfo);
   ws.clients.forEach((client) => {
     if (client.readyState === WebSocket.OPEN) {
@@ -95,10 +95,10 @@ const broadcastToClients = (trackInfo) => {
   });
 };
 
-const fetchAndBroadcastCurrentPlaying = async (dependencies) => { 
+const fetchAndBroadcastCurrentPlaying = async (dependencies, wsInstance) => { 
   if (retryAfter > Date.now()) {
     console.log("Rate limit in effect. Skipping fetch");
-    scheduleNextFetch(dependencies, webSocket);
+    scheduleNextFetch(dependencies, wsInstance);
     return;
   }
   const handletrackData = (currentTrack) => {
@@ -116,9 +116,9 @@ const fetchAndBroadcastCurrentPlaying = async (dependencies) => {
   scheduleNextFetch(dependencies);
 };
 
-const scheduleNextFetch = (dependencies) => {
+const scheduleNextFetch = (dependencies, wsInstance) => {
   const interval = 60000;
-  setTimeout(() => fetchAndBroadcastCurrentPlaying(dependencies), interval);
+  setTimeout(() => fetchAndBroadcastCurrentPlaying(dependencies, wsInstance), interval);
 };
 
 const processQueue = () => {
