@@ -10,9 +10,12 @@ let cache = {
 
 const requestQueue = [];
 
-const getCurrentTrackFromSpotify = async (callback, dependencies, wsInstance) => {
+const getCurrentTrackFromSpotify = async (
+  callback,
+  dependencies,
+  wsInstance
+) => {
   const { axios } = dependencies;
-
 
   const accessToken = getAccessToken();
 
@@ -95,14 +98,13 @@ const broadcastToClients = (trackInfo, wsInstance) => {
   });
 };
 
-const fetchAndBroadcastCurrentPlaying = async (dependencies, wsInstance) => { 
-  
+const fetchAndBroadcastCurrentPlaying = async (dependencies, wsInstance) => {
   if (retryAfter > Date.now()) {
     console.log("Rate limit in effect. Skipping fetch");
     scheduleNextFetch(dependencies, wsInstance);
     return;
   }
-  const handletrackData = (currentTrack, wsInstance) => {
+  const handletrackData = (currentTrack) => {
     if (currentTrack && currentTrack.id !== lastTrackId) {
       lastTrackId = currentTrack.id;
       broadcastToClients(currentTrack, wsInstance);
@@ -119,7 +121,10 @@ const fetchAndBroadcastCurrentPlaying = async (dependencies, wsInstance) => {
 
 const scheduleNextFetch = (dependencies, wsInstance) => {
   const interval = 60000;
-  setTimeout(() => fetchAndBroadcastCurrentPlaying(dependencies, wsInstance), interval);
+  setTimeout(
+    () => fetchAndBroadcastCurrentPlaying(dependencies, wsInstance),
+    interval
+  );
 };
 
 const processQueue = () => {
