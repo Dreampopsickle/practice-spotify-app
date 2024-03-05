@@ -90,7 +90,7 @@ const getCurrentTrackFromSpotify = async (
 };
 
 const broadcastToClients = (trackInfo, wsInstance) => {
-  console.log("wsInstance:", wsInstance);
+  console.log("wsInstance in broadcastToClients:", wsInstance);
   console.log("Broadcasting to clients:", trackInfo);
 
   wsInstance.clients.forEach((client) => {
@@ -101,8 +101,8 @@ const broadcastToClients = (trackInfo, wsInstance) => {
 };
 
 const fetchAndBroadcastCurrentPlaying = async (dependencies, options) => {
-  // console.log('Options: ', options);
   const { ws } = options;
+  console.log('Options in fetch function: ', ws);
   console.log("wsInstance: ", ws);
   if (retryAfter > Date.now()) {
     console.log("Rate limit in effect. Skipping fetch");
