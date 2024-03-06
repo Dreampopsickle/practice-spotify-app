@@ -113,7 +113,8 @@ const fetchAndBroadcastCurrentPlaying = async (dependencies, options) => {
     scheduleNextFetch(dependencies, options);
     return;
   }
-  const handletrackData = (currentTrack) => {
+  const handletrackData = (currentTrack, options) => {
+    console.log("options in handtrackData:", options)
     if (currentTrack && currentTrack.id !== lastTrackId) {
       lastTrackId = currentTrack.id;
       broadcastToClients(currentTrack, options);
