@@ -106,7 +106,7 @@ const broadcastToClients = (trackInfo, wsInstance) => {
 const fetchAndBroadcastCurrentPlaying = async (dependencies, options) => {
   // console.log("Options passed in: ", options);
   // const { ws } = options;
-  console.log('Options in fetch function: ', options);
+  // console.log('Options in fetch function: ', options);
   
   if (retryAfter > Date.now()) {
     console.log("Rate limit in effect. Skipping fetch");
