@@ -145,7 +145,7 @@ ws.on("connection", function connection(wsInstance) {
   wsInstance.on("message", function incoming(message) {
     console.log("received: %s", message);
   });
-  fetchAndBroadcastCurrentPlaying(routeDependencies, { ws: wsInstance });
+  fetchAndBroadcastCurrentPlaying(routeDependencies, wsInstance);
 });
 
 // --------------------------------------------------------------------------
