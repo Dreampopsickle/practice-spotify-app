@@ -68,7 +68,7 @@ const getCurrentTrackFromSpotify = async (
     cache.expiry = new Date(new Date().getTime() + 5 * 60 * 1000);
     const fixedCacheDuration = 120 * 1000;
     setCache(cacheKey, trackData, fixedCacheDuration);
-    callback(trackData, wsInstance);
+    callback(trackData);
     return trackData;
   } catch (error) {
     if (error.response && error.response.status === 429) {
@@ -123,7 +123,7 @@ const fetchAndBroadcastCurrentPlaying = async (dependencies, options) => {
     }
   };
   requestQueue.push(() =>
-    getCurrentTrackFromSpotify(handletrackData, dependencies, options)
+    getCurrentTrackFromSpotify(handletrackData(currentTrack, options), dependencies, options)
   );
   processQueue();
   scheduleNextFetch(dependencies, options);
