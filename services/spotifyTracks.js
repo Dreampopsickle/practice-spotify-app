@@ -114,11 +114,11 @@ const fetchAndBroadcastCurrentPlaying = async (dependencies, options) => {
     scheduleNextFetch(dependencies, options);
     return;
   }
-  const handletrackData = (currentTrack, options) => {
-    console.log("options in handtrackData:", options)
+  const handletrackData = (currentTrack, ws) => {
+    console.log("options in handtrackData:", ws)
     if (currentTrack && currentTrack.id !== lastTrackId) {
       lastTrackId = currentTrack.id;
-      broadcastToClients(currentTrack, options);
+      broadcastToClients(currentTrack, ws);
     } else {
       console.log("No track is currently playing or track as not changed");
     }
@@ -130,10 +130,10 @@ const fetchAndBroadcastCurrentPlaying = async (dependencies, options) => {
   scheduleNextFetch(dependencies, options);
 };
 
-const scheduleNextFetch = (dependencies, wsInstance) => {
+const scheduleNextFetch = (dependencies, ws) => {
   const interval = 60000;
   setTimeout(
-    () => fetchAndBroadcastCurrentPlaying(dependencies, wsInstance),
+    () => fetchAndBroadcastCurrentPlaying(dependencies, ws),
     interval
   );
 };
