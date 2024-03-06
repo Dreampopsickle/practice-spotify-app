@@ -123,7 +123,7 @@ const fetchAndBroadcastCurrentPlaying = async (dependencies, options) => {
     }
   };
   requestQueue.push(() =>
-    getCurrentTrackFromSpotify(handletrackData(currentTrack, options), dependencies, options)
+    getCurrentTrackFromSpotify(handletrackData(options), dependencies, options)
   );
   processQueue();
   scheduleNextFetch(dependencies, options);
