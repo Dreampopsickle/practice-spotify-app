@@ -115,21 +115,22 @@ const fetchAndBroadcastCurrentPlaying = async (dependencies, options) => {
     return;
   }
   const socket = options;
-  console.log("What is in socket?: ", socket);
-  const handletrackData = (currentTrack, options) => {
-    // console.log("options in handtrackData:", options);
-    if (currentTrack && currentTrack.id !== lastTrackId) {
-      lastTrackId = currentTrack.id;
-      broadcastToClients(currentTrack, options);
-    } else {
-      console.log("No track is currently playing or track as not changed");
-    }
-  };
+  // console.log("What is in socket?: ", socket);
+  handletrackData(trackData, socket);
   requestQueue.push(() =>
     getCurrentTrackFromSpotify(handletrackData, dependencies, options)
   );
   processQueue();
   scheduleNextFetch(dependencies, options);
+};
+
+const handletrackData = (currentTrack, socketServer) => {
+  if (currentTrack && currentTrack.id !== lastTrackId) {
+    lastTrackId = currentTrack.id;
+    broadcastToClients(currentTrack, socketServer);
+  } else {
+    console.log("No track is currently playing or track has not changed");
+  }
 };
 
 const scheduleNextFetch = (dependencies, ws) => {
