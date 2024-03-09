@@ -104,7 +104,7 @@ const broadcastToClients = (trackInfo, ws) => {
   });
 };
 
-const fetchAndBroadcastCurrentPlaying = async (dependencies, ws) => {
+const fetchAndBroadcastCurrentPlaying = async (dependencies, socket) => {
   // console.log("Options passed in: ", options);
   // const { ws } = options;
   if (retryAfter > Date.now()) {
@@ -112,20 +112,20 @@ const fetchAndBroadcastCurrentPlaying = async (dependencies, ws) => {
     scheduleNextFetch(dependencies, ws);
     return;
   }
-  const socket = ws;
+  const ws = socket;
   const trackData = await getCurrentTrackFromSpotify(
     handletrackData,
     dependencies,
-    socket
+    ws
   );
   // console.log("What is in socket?: ", socket);
   // getCurrentTrackFromSpotify(callback, dependencies);
-  handletrackData(trackData, socket);
+  handletrackData(trackData, ws);
   requestQueue.push(() =>
-    getCurrentTrackFromSpotify(handletrackData, dependencies)
+    getCurrentTrackFromSpotify(handletrackData(trackData, ws), dependencies)
   );
   processQueue();
-  scheduleNextFetch(dependencies, socket);
+  scheduleNextFetch(dependencies, ws);
 };
 
 const handletrackData = (currentTrack, socketServer) => {
