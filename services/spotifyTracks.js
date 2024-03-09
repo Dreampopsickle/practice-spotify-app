@@ -109,7 +109,7 @@ const fetchAndBroadcastCurrentPlaying = async (dependencies, options) => {
     return;
   }
   const socket = options;
-  const trackData = await fetchAndBroadcastCurrentPlaying(dependencies);
+  const trackData = await getCurrentTrackFromSpotify(dependencies);
   // console.log("What is in socket?: ", socket);
   // getCurrentTrackFromSpotify(callback, dependencies);
   handletrackData(trackData, socket);
