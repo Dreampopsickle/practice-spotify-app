@@ -10,7 +10,11 @@ let cache = {
 
 const requestQueue = [];
 
-const getCurrentTrackFromSpotify = async (callback, dependencies) => {
+const getCurrentTrackFromSpotify = async (
+  callback,
+  dependencies,
+  wsInstance
+) => {
   const { axios } = dependencies;
 
   const accessToken = getAccessToken();
@@ -111,7 +115,8 @@ const fetchAndBroadcastCurrentPlaying = async (dependencies, ws) => {
   const socket = ws;
   const trackData = await getCurrentTrackFromSpotify(
     handletrackData,
-    dependencies
+    dependencies,
+    socket
   );
   // console.log("What is in socket?: ", socket);
   // getCurrentTrackFromSpotify(callback, dependencies);
