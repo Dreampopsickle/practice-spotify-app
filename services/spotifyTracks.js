@@ -105,7 +105,7 @@ const broadcastToClients = (trackInfo, ws) => {
 };
 
 const fetchAndBroadcastCurrentPlaying = async (dependencies, options) => {
-  // console.log("Options passed in: ", options);
+  console.log("Options passed in: ", options);
   // const { ws } = options;                                    ////////////////////////////////////////////////////////////
   // console.log('Options in fetch function: ', options);       ////FIX the FLOW of OPTIONS to the rest of this function/////
   ////////////////////////////////////////////////////////////
