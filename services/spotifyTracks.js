@@ -105,7 +105,7 @@ const broadcastToClients = (trackInfo, ws) => {
 };
 
 const fetchAndBroadcastCurrentPlaying = async (dependencies, options) => {
-  console.log("Options passed in: ", options);
+  // console.log("Options passed in: ", options);
   // const { ws } = options;                                    ////////////////////////////////////////////////////////////
   // console.log('Options in fetch function: ', options);       ////FIX the FLOW of OPTIONS to the rest of this function/////
   ////////////////////////////////////////////////////////////
@@ -114,8 +114,10 @@ const fetchAndBroadcastCurrentPlaying = async (dependencies, options) => {
     scheduleNextFetch(dependencies, options);
     return;
   }
+  const socket = options;
+  console.log("What is in socket?: ", socket);
   const handletrackData = (currentTrack, options) => {
-    console.log("options in handtrackData:", options);
+    // console.log("options in handtrackData:", options);
     if (currentTrack && currentTrack.id !== lastTrackId) {
       lastTrackId = currentTrack.id;
       broadcastToClients(currentTrack, options);
