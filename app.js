@@ -139,13 +139,13 @@ const { fetchAndBroadcastCurrentPlaying } = require("./services/spotifyTracks");
 
 // -------------------------------------------------------------------------
 // Open a WebSocket
-ws.on("connection", function connection(wsInstance) {
+ws.on("connection", function connection(ws) {
   console.log("A new client connected!");
 
-  wsInstance.on("message", function incoming(message) {
+  ws.on("message", function incoming(message) {
     console.log("received: %s", message);
   });
-  fetchAndBroadcastCurrentPlaying(routeDependencies, wsInstance);
+  fetchAndBroadcastCurrentPlaying(routeDependencies, ws);
 });
 
 // --------------------------------------------------------------------------

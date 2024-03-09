@@ -104,21 +104,22 @@ const broadcastToClients = (trackInfo, ws) => {
   });
 };
 
+
 const fetchAndBroadcastCurrentPlaying = async (dependencies, options) => {
   // console.log("Options passed in: ", options);
-  // const { ws } = options;
-  // console.log('Options in fetch function: ', options);
-  
+  // const { ws } = options;                                    ////////////////////////////////////////////////////////////
+  // console.log('Options in fetch function: ', options);       ////FIX the FLOW of OPTIONS to the rest of this function/////
+                                                                ////////////////////////////////////////////////////////////
   if (retryAfter > Date.now()) {
     console.log("Rate limit in effect. Skipping fetch");
     scheduleNextFetch(dependencies, options);
     return;
   }
-  const handletrackData = (currentTrack, ws) => {
+  const handletrackData = (currentTrack, options) => {
     console.log("options in handtrackData:", ws)
     if (currentTrack && currentTrack.id !== lastTrackId) {
       lastTrackId = currentTrack.id;
-      broadcastToClients(currentTrack, ws);
+      broadcastToClients(currentTrack, options);
     } else {
       console.log("No track is currently playing or track as not changed");
     }
