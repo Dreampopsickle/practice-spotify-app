@@ -93,7 +93,7 @@ const broadcastToClients = (trackInfo, ws) => {
   if (!ws || !ws.clients) {
     console.error("WebSocket instance or clients are undefined.");
     return;
-  };
+  }
   console.log("wsInstance in broadcastToClients:", wsInstance);
   console.log("Broadcasting to clients:", trackInfo);
 
@@ -104,19 +104,18 @@ const broadcastToClients = (trackInfo, ws) => {
   });
 };
 
-
 const fetchAndBroadcastCurrentPlaying = async (dependencies, options) => {
   // console.log("Options passed in: ", options);
   // const { ws } = options;                                    ////////////////////////////////////////////////////////////
   // console.log('Options in fetch function: ', options);       ////FIX the FLOW of OPTIONS to the rest of this function/////
-                                                                ////////////////////////////////////////////////////////////
+  ////////////////////////////////////////////////////////////
   if (retryAfter > Date.now()) {
     console.log("Rate limit in effect. Skipping fetch");
     scheduleNextFetch(dependencies, options);
     return;
   }
   const handletrackData = (currentTrack, options) => {
-    console.log("options in handtrackData:", ws)
+    console.log("options in handtrackData:", options);
     if (currentTrack && currentTrack.id !== lastTrackId) {
       lastTrackId = currentTrack.id;
       broadcastToClients(currentTrack, options);
@@ -133,10 +132,7 @@ const fetchAndBroadcastCurrentPlaying = async (dependencies, options) => {
 
 const scheduleNextFetch = (dependencies, ws) => {
   const interval = 60000;
-  setTimeout(
-    () => fetchAndBroadcastCurrentPlaying(dependencies, ws),
-    interval
-  );
+  setTimeout(() => fetchAndBroadcastCurrentPlaying(dependencies, ws), interval);
 };
 
 const processQueue = () => {
