@@ -100,15 +100,15 @@ const broadcastToClients = (trackInfo, ws) => {
   });
 };
 
-const fetchAndBroadcastCurrentPlaying = async (dependencies, options) => {
+const fetchAndBroadcastCurrentPlaying = async (dependencies, ws) => {
   // console.log("Options passed in: ", options);
   // const { ws } = options;
   if (retryAfter > Date.now()) {
     console.log("Rate limit in effect. Skipping fetch");
-    scheduleNextFetch(dependencies, socket);
+    scheduleNextFetch(dependencies, ws);
     return;
   }
-  const socket = options;
+  const socket = ws;
   const trackData = await getCurrentTrackFromSpotify(
     handletrackData,
     dependencies
