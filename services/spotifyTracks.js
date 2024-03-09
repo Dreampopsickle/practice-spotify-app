@@ -105,14 +105,11 @@ const fetchAndBroadcastCurrentPlaying = async (dependencies, options) => {
   // const { ws } = options;
   if (retryAfter > Date.now()) {
     console.log("Rate limit in effect. Skipping fetch");
-    scheduleNextFetch(dependencies, options);
+    scheduleNextFetch(dependencies, socket);
     return;
   }
   const socket = options;
-  const trackData = await getCurrentTrackFromSpotify(
-    handletrackData,
-    dependencies
-  );
+  const trackData = await getCurrentTrackFromSpotify(handletrackData, socket);
   // console.log("What is in socket?: ", socket);
   // getCurrentTrackFromSpotify(callback, dependencies);
   handletrackData(trackData, socket);
@@ -120,7 +117,7 @@ const fetchAndBroadcastCurrentPlaying = async (dependencies, options) => {
     getCurrentTrackFromSpotify(handletrackData, dependencies)
   );
   processQueue();
-  scheduleNextFetch(dependencies, options);
+  scheduleNextFetch(dependencies, socket);
 };
 
 const handletrackData = (currentTrack, socketServer) => {
