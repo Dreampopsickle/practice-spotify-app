@@ -9,6 +9,9 @@ const crypto = require("crypto");
 const axios = require("axios");
 const path = require("path");
 
+// Import Token Manager
+const TokenManager = require("./token/tokenManager");
+
 /// Import Middleware
 const session = require("express-session");
 const cors = require("cors");
@@ -30,8 +33,17 @@ const spotifyAuthUrl = "https://accounts.spotify.com/authorize";
 const spotifyTokenUrl = "https://accounts.spotify.com/api/token";
 const stateKey = "spotify_auth_state";
 
+// Initialize TokenManager
+const tokenManager = new TokenManager({
+  clientId,
+  clientSecret,
+  spotifyTokenUrl,
+  axios,
+  queryString,
+});
+
 //We're going to pass this to all our routes, probably
-let routeDependencies = {
+const routeDependencies = {
   clientId,
   clientSecret,
   redirectUri,
@@ -43,7 +55,10 @@ let routeDependencies = {
   queryString,
   axios,
   path,
+  tokenManager,
 };
+
+// console.log(routeDependencies);
 
 /// Make Sure that worked
 if (!clientId || !clientSecret) {
@@ -95,7 +110,7 @@ app.use(express.static("src"));
 
 /// Handle when someone gits the root (/) of our web server
 app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "src", "login.html"));
+  res.sendFile(path.join(__dirname, "..", "src", "login.html"));
 });
 
 /// Handle (kenny) logins
@@ -146,6 +161,7 @@ ws.on("connection", function connection(ws) {
     console.log("received: %s", message);
   });
   fetchAndBroadcastCurrentPlaying(routeDependencies, ws);
+  // console.log("Route Dependencies:", routeDependencies);
 });
 
 // --------------------------------------------------------------------------

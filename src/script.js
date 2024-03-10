@@ -1,31 +1,26 @@
+const onLoginSuccess = () => {
+  localStorage.setItem("isLoggedIn", "true");
+  connectWebSocket();
+};
+
 let lastTrackId = localStorage.getItem("lastTrackId");
-let dotenv = require("dotenv");
+// let dotenv = require("dotenv");
 
 localStorage.setItem("isLoggedIn", "true");
 
-if (localStorage.getItem("isLoggedIn") === "true") {
-  console.log("User is authenticated");
-  onLoginSuccess();
-  const savedTrackInfo = localStorage.getItem("trackInfo");
-  if (savedTrackInfo) {
-    updateTrackInfoUI(JSON.parse(savedTrackInfo));
-  }
-} else {
-  console.log("User is not authenticated");
-  //Promt for login to-do
-}
-dotenv.config();
-const localLogin = process.env.LOCALHOST_LOGIN;
-const renderLogin = process.env.RENDERHOST_LOGIN;
-if (localLogin) {
-  const socket = new WebSocket(`ws://${localLogin}`);
-  connectWebSocket(socket);
-} else if (renderLogin) {
-  const socket = new WebSocket(`wss://${localLogin}`);
-  connectWebSocket(socket);
-}
-const connectWebSocket = (socket) => {
+// dotenv.config();
+// const localLogin = process.env.LOCALHOST_LOGIN;
+// const renderLogin = process.env.RENDERHOST_LOGIN;
+// if (localLogin) {
+//   const socket = new WebSocket(`ws://${localLogin}`); // This is temporary, remember to refactor for Render hosting
+//   connectWebSocket(socket);
+// } else if (renderLogin) {
+//   const socket = new WebSocket(`wss://${localLogin}`);
+//   connectWebSocket(socket);
+// }
+const connectWebSocket = () => {
   // const socket = new WebSocket(`wss://practice-spotify-app.onrender.com`);
+  const socket = new WebSocket(`ws://localhost:5502`);
 
   socket.onopen = function (event) {
     console.log("WebSocket connection established", event);
@@ -75,10 +70,17 @@ const updateTrackInfoUI = (trackInfo) => {
   }
 };
 
-const onLoginSuccess = () => {
-  localStorage.setItem("isLoggedIn", "true");
-  connectWebSocket();
-};
+if (localStorage.getItem("isLoggedIn") === "true") {
+  console.log("User is authenticated");
+  onLoginSuccess();
+  const savedTrackInfo = localStorage.getItem("trackInfo");
+  if (savedTrackInfo) {
+    updateTrackInfoUI(JSON.parse(savedTrackInfo));
+  }
+} else {
+  console.log("User is not authenticated");
+  //Promt for login to-do
+}
 
 // function logOut() {
 //     localStorage.removeItem('isLoggedIn');

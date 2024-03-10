@@ -1,4 +1,4 @@
-const { setTokens } = require("../token/tokenManager");
+// let { setTokens } = require("../token/tokenManager");
 
 const callbackRoute = async (req, res, dependencies) => {
   const {
@@ -13,6 +13,7 @@ const callbackRoute = async (req, res, dependencies) => {
     queryString,
     axios,
     path,
+    tokenManager,
   } = dependencies;
   const code = req.query.code || null;
   console.log(code);
@@ -48,13 +49,15 @@ const callbackRoute = async (req, res, dependencies) => {
     );
 
     // Update tokens using tokenManager
-    setTokens({
+    tokenManager.setTokens({
       accessToken: tokenResponse.data.access_token,
       refreshToken: tokenResponse.data.refresh_token,
       expiresIn: tokenResponse.data.expires_in,
     });
 
-    console.log(`Tokens Acquired: ${setTokens}`);
+    // console.log(`Access Token Acquired: ${tokenResponse.data.access_token}`);
+    // console.log(`Refresh Token Acquired: ${tokenResponse.data.refresh_token}`);
+    // console.log(`Expires In: ${tokenResponse.data.expires_in}`);
 
     res.redirect("/authenticated");
   } catch (error) {

@@ -27,7 +27,7 @@ const loginRoute = (req, res, dependencies) => {
   const authUrl = `${spotifyAuthUrl}?${queryString.stringify(params)}`;
 
   //Redirect to Spotify's auth page
-  console.log(authUrl);
+  // console.log(authUrl);
   res.redirect(authUrl);
   console.log("Login route is working");
 };
