@@ -154,10 +154,10 @@ const { fetchAndBroadcastCurrentPlaying } = require("./services/spotifyTracks");
 
 // -------------------------------------------------------------------------
 // Open a WebSocket
-ws.on("connection", function connection(ws) {
+ws.on("connection", function connection(client) {
   console.log("A new client connected!");
 
-  ws.on("message", function incoming(message) {
+  client.on("message", function incoming(message) {
     console.log("received: %s", message);
   });
   fetchAndBroadcastCurrentPlaying(routeDependencies, ws);

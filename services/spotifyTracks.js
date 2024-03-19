@@ -87,7 +87,7 @@ const fetchAndBroadcastCurrentPlaying = async (dependencies, ws) => {
   }
 
   const trackData = await getCurrentTrackFromSpotify(dependencies);
-  if (trackData) {
+  if (trackData && ws) {
     handletrackData(trackData, ws);
   }
   requestQueue.push(() => getCurrentTrackFromSpotify(dependencies));
@@ -101,10 +101,11 @@ const broadcastToClients = (trackInfo, ws) => {
     console.error("WebSocket instance or clients are undefined.");
     return;
   }
+  console.log("Websocket clients available: ", ws.clients.size);
   console.log("Broadcasting to clients:", trackInfo);
 
   ws.clients.forEach((client) => {
-    if (client.readyState === WebSocket.OPEN) {
+    if (client.readyState === 1) {
       client.send(JSON.stringify(trackInfo));
     }
   });
