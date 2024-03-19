@@ -19,8 +19,8 @@ localStorage.setItem("isLoggedIn", "true");
 //   connectWebSocket(socket);
 // }
 const connectWebSocket = () => {
-  // const socket = new WebSocket(`wss://practice-spotify-app.onrender.com`);
-  const socket = new WebSocket(`ws://localhost:5502`);
+  const socket = new WebSocket(`wss://practice-spotify-app.onrender.com`);
+  // const socket = new WebSocket(`ws://localhost:5502`);
 
   socket.onopen = function (event) {
     console.log("WebSocket connection established", event);
