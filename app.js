@@ -110,7 +110,7 @@ app.use(express.static("src"));
 
 /// Handle when someone gits the root (/) of our web server
 app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "..", "src", "login.html"));
+  res.sendFile(path.join(__dirname, "src", "login.html"));
 });
 
 /// Handle (kenny) logins
