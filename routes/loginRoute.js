@@ -1,3 +1,4 @@
+// Route handler for initiating the Spotify login process
 const loginRoute = (req, res, dependencies) => {
   const {
     crypto,
@@ -7,6 +8,8 @@ const loginRoute = (req, res, dependencies) => {
     spotifyAuthUrl,
     queryString,
   } = dependencies;
+
+  // Generate a random state string for CSRF protection
   const generateRandomString = (length) => {
     return crypto.randomBytes(60).toString("hex").slice(0, length);
   };
@@ -14,6 +17,7 @@ const loginRoute = (req, res, dependencies) => {
   const state = generateRandomString(16);
   res.cookie(stateKey, state);
 
+  // Construct the Spotify authorization URL
   const params = {
     response_type: "code",
     client_id: clientId,
@@ -27,7 +31,6 @@ const loginRoute = (req, res, dependencies) => {
   const authUrl = `${spotifyAuthUrl}?${queryString.stringify(params)}`;
 
   //Redirect to Spotify's auth page
-  // console.log(authUrl);
   res.redirect(authUrl);
   console.log("Login route is working");
 };

@@ -1,5 +1,4 @@
-// let { getRefreshToken, setTokens } = require("../token/tokenManager");
-
+// Route handler to refresh the SPotify access token
 const refreshRoute = async (req, res, dependencies) => {
   const { tokenManager } = dependencies;
   try {

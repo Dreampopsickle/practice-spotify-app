@@ -21,7 +21,7 @@ const getCache = (key) => {
   return null;
 };
 
-//Main Functionality
+//Fetch functionality
 const getCurrentTrackFromSpotify = async (dependencies) => {
   const { axios, tokenManager } = dependencies;
   const accessToken = await tokenManager.getAccessToken();

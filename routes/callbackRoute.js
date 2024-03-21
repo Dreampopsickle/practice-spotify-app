@@ -1,6 +1,6 @@
-// let { setTokens } = require("../token/tokenManager");
-
+// Route handler for the Spotify OAuth callback
 const callbackRoute = async (req, res, dependencies) => {
+  // Destructure dependencies for ease of use
   const {
     clientId,
     clientSecret,
@@ -15,21 +15,22 @@ const callbackRoute = async (req, res, dependencies) => {
     path,
     tokenManager,
   } = dependencies;
+
+  // Extract authorization code and state form query parameters
   const code = req.query.code || null;
   console.log(code);
   const state = req.query.state || null;
   const storedState = req.cookies ? req.cookies[stateKey] : null;
 
-  // check if we've even made a request yet
+  // Validate state paramter to prevent CSRF attacks
   if (state === null || state !== storedState) {
     res.redirect("/#" + queryString.stringify({ error: "state_mismatch" }));
-    // if we didn't already make a request, redirect to the state_mismatch string and get out of here
     return;
   }
   // if we did already make a request, let's reset the "stateKey" cookie
   res.clearCookie(stateKey);
 
-  // now let's attempt to make a request
+  // Request access and refresh tokens from Spotify
   try {
     const tokenResponse = await axios.post(
       spotifyTokenUrl,
@@ -48,17 +49,14 @@ const callbackRoute = async (req, res, dependencies) => {
       }
     );
 
-    // Update tokens using tokenManager
+    // Update tokens in the session or token store
     tokenManager.setTokens({
       accessToken: tokenResponse.data.access_token,
       refreshToken: tokenResponse.data.refresh_token,
       expiresIn: tokenResponse.data.expires_in,
     });
 
-    // console.log(`Access Token Acquired: ${tokenResponse.data.access_token}`);
-    // console.log(`Refresh Token Acquired: ${tokenResponse.data.refresh_token}`);
-    // console.log(`Expires In: ${tokenResponse.data.expires_in}`);
-
+    // Redirect to authenticated state page
     res.redirect("/authenticated");
   } catch (error) {
     console.error("Error in token exchange or fetching user details:", error);
