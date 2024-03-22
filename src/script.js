@@ -1,12 +1,13 @@
+// Initialize login process and WebSocket connection on successful login
 const onLoginSuccess = () => {
-  localStorage.setItem("isLoggedIn", "true");
-  connectWebSocket();
+  localStorage.setItem("isLoggedIn", "true"); // Flag to indicated login status
+  connectWebSocket(); // Establish WebSocket connection for real-time updates
 };
 
-let lastTrackId = localStorage.getItem("lastTrackId");
+let lastTrackId = localStorage.getItem("lastTrackId"); // Retrieve the last track ID
 // let dotenv = require("dotenv");
 
-localStorage.setItem("isLoggedIn", "true");
+// localStorage.setItem("isLoggedIn", "true");
 
 // dotenv.config();
 // const localLogin = process.env.LOCALHOST_LOGIN;
@@ -18,6 +19,8 @@ localStorage.setItem("isLoggedIn", "true");
 //   const socket = new WebSocket(`wss://${localLogin}`);
 //   connectWebSocket(socket);
 // }
+
+// Establish WebSocket connection and handle incoming messages
 const connectWebSocket = () => {
   const socket = new WebSocket(`wss://practice-spotify-app.onrender.com`);
   // const socket = new WebSocket(`ws://localhost:5502`);
@@ -28,8 +31,10 @@ const connectWebSocket = () => {
 
   socket.onmessage = (event) => {
     console.log("Data received:", event.data);
-    const trackInfo = JSON.parse(event.data);
+    const trackInfo = JSON.parse(event.data); // Parse incoming track data
     console.log("Track info recieved:", trackInfo);
+
+    // Update UI and local storage if new track information is received
     if (trackInfo.id !== lastTrackId) {
       lastTrackId = trackInfo.id;
       localStorage.setItem("lastTrackId", trackInfo.id);
@@ -37,7 +42,8 @@ const connectWebSocket = () => {
       updateTrackInfoUI(trackInfo);
     }
 
-    if (data.sessionExpired) {
+    // Redirect ti login page if session expired
+    if (trackInfo.sessionExpired) {
       alert("Session expired Please log in again.");
       window.location.href = "/login.html";
     }
@@ -49,10 +55,11 @@ const connectWebSocket = () => {
 
   socket.onclose = function (event) {
     console.log("WebSocket disconnected, attempting to reconnect...");
-    setTimeout(connectWebSocket, 5000);
+    setTimeout(connectWebSocket, 5000); // Attempt to reconnect after 5 seconds
   };
 };
 
+// Update UI elements with the current track information
 const updateTrackInfoUI = (trackInfo) => {
   const trackInfoDiv = document.getElementById("trackInfo");
   const trackName = document.getElementById("trackName");
@@ -70,6 +77,7 @@ const updateTrackInfoUI = (trackInfo) => {
   }
 };
 
+// Initialize UI and WebSocket connection if the user is already logged in
 if (localStorage.getItem("isLoggedIn") === "true") {
   console.log("User is authenticated");
   onLoginSuccess();
@@ -79,7 +87,7 @@ if (localStorage.getItem("isLoggedIn") === "true") {
   }
 } else {
   console.log("User is not authenticated");
-  //Promt for login to-do
+  //Prompt user to log in
 }
 
 // function logOut() {
