@@ -1,4 +1,4 @@
-// Dependencies and State Management
+// State Management for track information
 let lastTrackId = null; // Store the ID of the last track played
 let retryAfter = 0;
 let cache = {
@@ -10,18 +10,18 @@ let cache = {
 const setCache = (key, data, ttl) => {
   const now = new Date().getTime();
   const expires = now + ttl;
-  cache[key] = { data, expires };
+  cache[key] = { data, expires }; // Set cache with expiry time
 };
 
 const getCache = (key) => {
   const item = cache[key];
   if (item && item.expires > new Date().getTime()) {
-    return item.data;
+    return item.data; // Return cached data if valid
   }
-  return null;
+  return null; // Return null if cache is expired or not set
 };
 
-//Fetch functionality
+// Main functionality to fetch the current track from Spotify
 const getCurrentTrackFromSpotify = async (dependencies) => {
   const { axios, tokenManager } = dependencies;
   const accessToken = await tokenManager.getAccessToken();
@@ -72,7 +72,7 @@ const getCurrentTrackFromSpotify = async (dependencies) => {
     cache.data = trackData;
     cache.expiry = new Date(new Date().getTime() + 5 * 60 * 1000);
     const fixedCacheDuration = 120 * 1000;
-    setCache(cacheKey, trackData, fixedCacheDuration);
+    setCache(cacheKey, trackData, fixedCacheDuration); // 120 seconds cache duration
     return trackData;
   } catch (error) {
     handleErrors(error);
@@ -106,7 +106,7 @@ const broadcastToClients = (trackInfo, ws) => {
 
   ws.clients.forEach((client) => {
     if (client.readyState === 1) {
-      client.send(JSON.stringify(trackInfo));
+      client.send(JSON.stringify(trackInfo)); // Send Track info to connected clients
     }
   });
 };
@@ -114,7 +114,7 @@ const broadcastToClients = (trackInfo, ws) => {
 const handletrackData = (currentTrack, ws) => {
   if (currentTrack && currentTrack.id !== lastTrackId) {
     lastTrackId = currentTrack.id;
-    broadcastToClients(currentTrack, ws);
+    broadcastToClients(currentTrack, ws); // Broadcast new track data
   } else {
     console.log("No track is currently playing or track has not changed");
   }
@@ -142,7 +142,7 @@ const handleErrors = (error) => {
     const retryAfterMs = (parseInt(retryAfterHeader, 10) || 1) * 1000;
     retryAfter = Date.now() + retryAfterMs;
 
-    setTimeout(() => getCurrentTrackFromSpotify(dependencies), retryAfterMs);
+    setTimeout(() => getCurrentTrackFromSpotify(dependencies), retryAfterMs); // Retry after delay
   } else {
     console.error("Error fetching track from Spotify:", error);
     return null;

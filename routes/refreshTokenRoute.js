@@ -8,6 +8,7 @@ const refreshRoute = async (req, res, dependencies) => {
       return res.status(400).send({ error: "Unable to refresh access token" });
     }
 
+    // Send the new access token to the client
     res.send({ accessToken });
   } catch (error) {
     console.error("Error during token refresh", error);
