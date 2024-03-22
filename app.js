@@ -1,5 +1,5 @@
 // -----------------------------------------------
-// Libraries we need
+// Import necessary libraries and modules
 const express = require("express");
 const http = require("http");
 const fs = require("fs");
@@ -9,10 +9,10 @@ const crypto = require("crypto");
 const axios = require("axios");
 const path = require("path");
 
-// Import Token Manager
+// Import custom Token Manager for handling Spotify API tokens
 const TokenManager = require("./token/tokenManager");
 
-/// Import Middleware
+/// Import Middleware for session management, CORS, and cookie parsing
 const session = require("express-session");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
@@ -28,12 +28,12 @@ const clientSecret = process.env.SPOTIFY_CLIENT_SECRET;
 const redirectUri = process.env.SPOTIFY_REDIRECT_URI;
 const port = process.env.PORT || 3000;
 
-// These are constants so we'll just put them here too
+// Spotify API URLs and session state key
 const spotifyAuthUrl = "https://accounts.spotify.com/authorize";
 const spotifyTokenUrl = "https://accounts.spotify.com/api/token";
 const stateKey = "spotify_auth_state";
 
-// Initialize TokenManager
+// Initialize TokenManager with Spotify API details
 const tokenManager = new TokenManager({
   clientId,
   clientSecret,
@@ -42,7 +42,7 @@ const tokenManager = new TokenManager({
   queryString,
 });
 
-//We're going to pass this to all our routes, probably
+// Dependencies to be passed to route handlers
 const routeDependencies = {
   clientId,
   clientSecret,
@@ -58,9 +58,7 @@ const routeDependencies = {
   tokenManager,
 };
 
-// console.log(routeDependencies);
-
-/// Make Sure that worked
+/// Verify that Spotify client ID and secret are set
 if (!clientId || !clientSecret) {
   console.error(
     "Spotify client ID or secret is not set. Check your environmental variables!"
@@ -71,7 +69,7 @@ if (!clientId || !clientSecret) {
 // --------------------------------------------------------------------------------
 // Set up the app
 
-// We're using Express
+// Initialize Express App
 const app = express();
 
 // Create an HTTP Server and a WebSocket to listen with it
@@ -84,18 +82,18 @@ const secretKey = crypto.randomBytes(32).toString("hex");
 console.log("Generated Secret Key:", secretKey);
 
 // ----------------------------------------------------------------
-// Make the app only set up sessions using the secret key we just generated
+// Configure session management for Express
 app.use(
   session({
     secret: secretKey,
     resave: false,
     saveUninitialized: true,
-    cookie: { secure: false },
+    cookie: { secure: false }, // Should be true in production with HTTPS
   })
 );
 
 // ----------------------------------------------------------------
-// Middleware Setup
+// Apply middleware for CORS, cookie parsing and serving static files
 app
   .use(express.static(path.join(__dirname, "src"))) // look into the src dir for everything
   .use(cors())
@@ -108,7 +106,7 @@ app.use(express.static("src"));
 // ----------------------------------------------------------------
 // Set up our routes
 
-/// Handle when someone gits the root (/) of our web server
+/// Handle when someone gets the root (/) of our web server
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "src", "login.html"));
 });
@@ -146,7 +144,7 @@ app.get("/logout", (req, res) => {
 // -------------------------------------------------------------------------
 //Setup Refresh Token Mechanism
 const { refreshTokenIfNeeded } = require("./services/spotifyService");
-setInterval(() => refreshTokenIfNeeded(routeDependencies), 60000);
+setInterval(() => refreshTokenIfNeeded(routeDependencies), 60000); // Periodically refresh Spotify tokens
 
 // -------------------------------------------------------------------------
 //Fetch and Broadcast Spotify Data
