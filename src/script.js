@@ -36,9 +36,10 @@ const connectWebSocket = () => {
 
     // Update UI and local storage if new track information is received
     if (trackInfo.id !== lastTrackId) {
+      // to-do: clean up
       lastTrackId = trackInfo.id;
-      localStorage.setItem("lastTrackId", trackInfo.id);
       localStorage.setItem("trackInfo", JSON.stringify(trackInfo));
+      localStorage.setItem("lastTrackId", trackInfo.id);
       updateTrackInfoUI(trackInfo);
     }
 
@@ -72,6 +73,8 @@ const updateTrackInfoUI = (trackInfo) => {
     trackArtist.textContent = "Artist: " + trackInfo.artist;
     trackAlbum.textContent = "Album: " + trackInfo.album;
     trackCover.src = trackInfo.albumImageUrl;
+    trackCover.className =
+      "w-album-cover-sm h-album-cover-sm md:w-album-cover-md md:h-album-cover-md lg:w-album-cover-lg lg:h-album-cover-lg";
   } else {
     trackInfoDiv.innerHTML = "<p>No track is currently playing.</p>";
   }
@@ -89,6 +92,9 @@ if (localStorage.getItem("isLoggedIn") === "true") {
   console.log("User is not authenticated");
   //Prompt user to log in
 }
+window.onbeforeunload = function () {
+  socket.close();
+};
 
 // function logOut() {
 //     localStorage.removeItem('isLoggedIn');
