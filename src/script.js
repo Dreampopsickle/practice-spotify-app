@@ -72,6 +72,7 @@ const updateTrackInfoUI = (trackInfo) => {
     trackName.textContent = "Track: " + trackInfo.name;
     trackArtist.textContent = "Artist: " + trackInfo.artist;
     trackAlbum.textContent = "Album: " + trackInfo.album;
+    trackCover.loading = "lazy";
     trackCover.src = trackInfo.albumImageUrl;
     trackCover.className =
       "w-album-cover-sm h-album-cover-sm md:w-album-cover-md md:h-album-cover-md lg:w-album-cover-lg lg:h-album-cover-lg";
