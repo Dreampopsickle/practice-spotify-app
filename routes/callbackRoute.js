@@ -59,7 +59,8 @@ const callbackRoute = async (req, res, dependencies) => {
       refreshToken: tokenResponse.data.refresh_token,
       expiresIn: tokenResponse.data.expires_in,
     });
-
+    // Check for authentication for client side relay
+    req.session.isAuthenticated = true;
     // Redirect to authenticated state page
     res.redirect("/authenticated");
   } catch (error) {

@@ -10,10 +10,10 @@ class TokenManager {
     shopClientSecret,
   }) {
     // Initialize TokenManager with Spotify API credentials and necessary utilities
-    this.clientId = clientId;
-    this.clientSecret = clientSecret;
-    this.shopClientId = shopClientId;
-    this.shopClientSecret = shopClientSecret;
+    this.clientId = clientId; // mine
+    this.clientSecret = clientSecret; // mine
+    this.shopClientId = shopClientId; // WE
+    this.shopClientSecret = shopClientSecret; // WE
     this.spotifyTokenUrl = spotifyTokenUrl;
     this.axios = axios; // HTTP client for making requests
     this.queryString = queryString; // Utility for query string serialization

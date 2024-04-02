@@ -22,8 +22,8 @@ let lastTrackId = localStorage.getItem("lastTrackId"); // Retrieve the last trac
 
 // Establish WebSocket connection and handle incoming messages
 const connectWebSocket = () => {
-  // const socket = new WebSocket(`wss://practice-spotify-app.onrender.com`);
-  const socket = new WebSocket(`ws://localhost:5502`);
+  const socket = new WebSocket(`wss://practice-spotify-app.onrender.com`); // production
+  // const socket = new WebSocket(`ws://localhost:5502`); // development
 
   socket.onopen = function (event) {
     console.log("WebSocket connection established", event);
@@ -44,10 +44,10 @@ const connectWebSocket = () => {
     }
 
     // Redirect ti login page if session expired
-    if (trackInfo.sessionExpired) {
-      alert("Session expired Please log in again.");
-      window.location.href = "/login.html";
-    }
+    // if (trackInfo.sessionExpired) {
+    //   alert("Session expired Please log in again.");
+    //   window.location.href = "/login.html";
+    // }
   };
 
   socket.onerror = function (error) {
@@ -82,17 +82,26 @@ const updateTrackInfoUI = (trackInfo) => {
 };
 
 // Initialize UI and WebSocket connection if the user is already logged in
-if (localStorage.getItem("isLoggedIn") === "true") {
-  console.log("User is authenticated");
-  onLoginSuccess();
-  const savedTrackInfo = localStorage.getItem("trackInfo");
-  if (savedTrackInfo) {
-    updateTrackInfoUI(JSON.parse(savedTrackInfo));
-  }
-} else {
-  console.log("User is not authenticated");
-  //Prompt user to log in
-}
+const initializeApp = () => {
+  fetch("/api/isAuthenticated")
+    .then((response) => response.json())
+    .then((data) => {
+      if (data.isAuthenticated) {
+        console.log("User is authenticated");
+        onLoginSuccess();
+        const savedTrackInfo = localStorage.getItem("trackInfo");
+        if (savedTrackInfo) {
+          updateTrackInfoUI(JSON.parse(savedTrackInfo));
+        } else {
+          console.log("User is not authenticated");
+          //Prompt user to log in
+        }
+      }
+    })
+    .catch((error) => console.error("Error checking authentication", error));
+};
+
+document.addEventListener("DOMContentLoaded", initializeApp);
 window.onbeforeunload = function () {
   socket.close();
 };

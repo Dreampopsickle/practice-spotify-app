@@ -106,6 +106,16 @@ app
   .use(cookieParser());
 
 // ----------------------------------------------------------------
+// Check for authentication
+app.get("/api/isAuthenticated", (req, res) => {
+  if (req.session.isAuthenticated) {
+    res.json({ isAuthenticated: true });
+  } else {
+    res.json({ isAuthenticated: false });
+  }
+});
+// ----------------------------------------------------------------
+
 // We only want to serve static files
 app.use(express.static("src"));
 
