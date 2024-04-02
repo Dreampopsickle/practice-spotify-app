@@ -25,6 +25,8 @@ let dotenv = require("dotenv");
 dotenv.config(); // put what we find into the process.env
 const clientId = process.env.SPOTIFY_CLIENT_ID;
 const clientSecret = process.env.SPOTIFY_CLIENT_SECRET;
+const shopClientId = process.env.SPOTIFY_SHOP_CLIENT_ID;
+const shopClientSecret = process.env.SPOTIFY_SHOP_CLIENT_SECRET;
 const redirectUri = process.env.SPOTIFY_REDIRECT_URI;
 const port = process.env.PORT || 3000;
 
@@ -37,6 +39,8 @@ const stateKey = "spotify_auth_state";
 const tokenManager = new TokenManager({
   clientId,
   clientSecret,
+  shopClientId,
+  shopClientSecret,
   spotifyTokenUrl,
   axios,
   queryString,
@@ -46,6 +50,8 @@ const tokenManager = new TokenManager({
 const routeDependencies = {
   clientId,
   clientSecret,
+  shopClientId,
+  shopClientSecret,
   redirectUri,
   port,
   spotifyAuthUrl,
@@ -59,7 +65,7 @@ const routeDependencies = {
 };
 
 /// Verify that Spotify client ID and secret are set
-if (!clientId || !clientSecret) {
+if (!shopClientId || !shopClientSecret) {
   console.error(
     "Spotify client ID or secret is not set. Check your environmental variables!"
   ); // check for ID and secret

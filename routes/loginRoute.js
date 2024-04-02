@@ -4,6 +4,7 @@ const loginRoute = (req, res, dependencies) => {
     crypto,
     stateKey,
     clientId,
+    shopClientId,
     redirectUri,
     spotifyAuthUrl,
     queryString,
@@ -20,7 +21,7 @@ const loginRoute = (req, res, dependencies) => {
   // Construct the Spotify authorization URL
   const params = {
     response_type: "code",
-    client_id: clientId,
+    client_id: shopClientId,
     scope: "user-read-currently-playing user-read-playback-state",
     redirect_uri: redirectUri,
     state: state,

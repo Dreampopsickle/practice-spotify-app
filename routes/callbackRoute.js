@@ -4,6 +4,8 @@ const callbackRoute = async (req, res, dependencies) => {
   const {
     clientId,
     clientSecret,
+    shopClientId,
+    shopClientSecret,
     redirectUri,
     port,
     spotifyAuthUrl,
@@ -44,7 +46,9 @@ const callbackRoute = async (req, res, dependencies) => {
           "Content-Type": "application/x-www-form-urlencoded",
           Authorization:
             "Basic " +
-            Buffer.from(clientId + ":" + clientSecret).toString("base64"),
+            Buffer.from(shopClientId + ":" + shopClientSecret).toString(
+              "base64"
+            ),
         },
       }
     );

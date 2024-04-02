@@ -1,9 +1,19 @@
 // Class to manage Spotify access and refresh tokens
 class TokenManager {
-  constructor({ clientId, clientSecret, spotifyTokenUrl, axios, queryString }) {
+  constructor({
+    clientId,
+    clientSecret,
+    spotifyTokenUrl,
+    axios,
+    queryString,
+    shopClientId,
+    shopClientSecret,
+  }) {
     // Initialize TokenManager with Spotify API credentials and necessary utilities
     this.clientId = clientId;
     this.clientSecret = clientSecret;
+    this.shopClientId = shopClientId;
+    this.shopClientSecret = shopClientSecret;
     this.spotifyTokenUrl = spotifyTokenUrl;
     this.axios = axios; // HTTP client for making requests
     this.queryString = queryString; // Utility for query string serialization
@@ -57,7 +67,9 @@ class TokenManager {
             "Content-Type": "application/x-www-form-urlencoded",
             Authorization:
               "Basic " +
-              Buffer.from(clientId + ":" + clientSecret).toString("base64"),
+              Buffer.from(shopClientId + ":" + shopClientSecret).toString(
+                "base64"
+              ),
           },
         }
       );
