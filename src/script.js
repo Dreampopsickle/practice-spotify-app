@@ -5,25 +5,14 @@ const onLoginSuccess = () => {
 };
 
 let lastTrackId = localStorage.getItem("lastTrackId"); // Retrieve the last track ID
-// let dotenv = require("dotenv");
-
-// localStorage.setItem("isLoggedIn", "true");
-
-// dotenv.config();
-// const localLogin = process.env.LOCALHOST_LOGIN;
-// const renderLogin = process.env.RENDERHOST_LOGIN;
-// if (localLogin) {
-//   const socket = new WebSocket(`ws://${localLogin}`); // This is temporary, remember to refactor for Render hosting
-//   connectWebSocket(socket);
-// } else if (renderLogin) {
-//   const socket = new WebSocket(`wss://${localLogin}`);
-//   connectWebSocket(socket);
-// }
 
 // Establish WebSocket connection and handle incoming messages
 const connectWebSocket = () => {
-  const socket = new WebSocket(`wss://practice-spotify-app.onrender.com`); // production
-  // const socket = new WebSocket(`ws://localhost:5502`); // development
+  const isProduction = window.location.hostname !== "localhost";
+  const host = isProduction
+    ? "wss://practice-spotify-app.onrender.com"
+    : "ws://localhost:5502"; // toggles between prod and dev
+  const socket = new WebSocket(host);
 
   socket.onopen = function (event) {
     console.log("WebSocket connection established", event);
@@ -42,12 +31,6 @@ const connectWebSocket = () => {
       localStorage.setItem("lastTrackId", trackInfo.id);
       updateTrackInfoUI(trackInfo);
     }
-
-    // Redirect ti login page if session expired
-    // if (trackInfo.sessionExpired) {
-    //   alert("Session expired Please log in again.");
-    //   window.location.href = "/login.html";
-    // }
   };
 
   socket.onerror = function (error) {
