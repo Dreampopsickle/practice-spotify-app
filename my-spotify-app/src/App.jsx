@@ -1,7 +1,7 @@
 import React from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import { useState } from "react";
-import Login from "./components/Login";
+import { Login, Authenticated } from "./components/Index";
 import weLogo from "./assets/WElogo.png";
 
 const App = () => {
@@ -9,6 +9,7 @@ const App = () => {
     <Router>
       <Routes>
         <Route path="/login" element={<Login />} />
+        <Route path="/authenticated" element={<Authenticated />} />
       </Routes>
     </Router>
   );
