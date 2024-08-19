@@ -4,7 +4,7 @@ import { useState } from "react";
 import Login from "./components/Login";
 import weLogo from "./assets/WElogo.png";
 
-function App() {
+const App = () => {
   return (
     <Router>
       <Routes>
@@ -12,6 +12,6 @@ function App() {
       </Routes>
     </Router>
   );
-}
+};
 
 export default App;

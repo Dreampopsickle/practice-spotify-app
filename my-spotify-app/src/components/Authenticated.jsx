@@ -1,0 +1,124 @@
+import React, { useState, useEffect } from "react";
+
+const Authenticated = () => {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [trackInfo, setTrackInfo] = useState(null);
+  const [lastTrackId, setLastTrackId] = useState(
+    localStorage.getItem("lastTrackId")
+  );
+
+  useEffect(() => {
+    const initializeApp = async () => {
+      try {
+        const response = await fetch("/api/isAuthenticated");
+        const data = await response.json();
+
+        if (data.isAuthenticated) {
+          console.log("User is authenticated");
+          onLoginSuccess();
+          const savedTrackInfo = localStorage.getItem("trackInfo");
+          if (savedTrackInfo) {
+            updateTrackInfoUI(JSON.parse(savedTrackInfo));
+          }
+        } else {
+          console.log("User is not authenticated");
+        }
+      } catch (error) {
+        console.error("Error checking authentication", error);
+      }
+    };
+
+    initializeApp();
+  }, []);
+
+  useEffect(() => {
+    let socket;
+    if (isLoggedIn) {
+      socket = connectWebSocket();
+    }
+
+    return () => {
+      if (socket) {
+        socket.close();
+      }
+    };
+  }, [isLoggedIn]);
+
+  const onLoginSuccess = () => {
+    localStorage.setItem("isLoggedIn", "true");
+    setIsLoggedIn(true);
+  };
+
+  const connectWebSocket = () => {
+    const isProduction = window.location.hostname !== "localhost";
+    const host = isProduction
+      ? "wss://practice-spotify-app.onrender.com"
+      : "ws://localhost:5502";
+
+    const socket = new WebSocket(host);
+
+    socket.onopen = (event) => {
+      console.log("WebSocket connection established", event);
+    };
+
+    socket.onmessage = (event) => {
+      console.log("Data received:", event.data);
+      const trackInfo = JSON.parse(event.data);
+      console.log("Track info received:", trackInfo);
+
+      if (trackInfo.id !== lastTrackId) {
+        setLastTrackId(trackInfo.id);
+        localStorage.setItem("trackInfo", JSON.stringify(trackInfo));
+        localStorage.setItem("lastTrackId", trackInfo.id);
+        updateTrackInfoUI(trackInfo);
+      }
+    };
+
+    socket.onerror = (error) => {
+      console.error("WebSocket Error:", error);
+    };
+
+    socket.onclose = (event) => {
+      console.log("WebSocket disconnected, attempting to reconnect...");
+      setTimeout(connectWebSocket, 5000);
+    };
+
+    return socket;
+  };
+
+  const updateTrackInfoUI = (trackInfo) => {
+    setTrackInfo(trackInfo);
+  };
+
+  const handleLogOut = () => {
+    localStorage.removeItem("isLoggedIn");
+    localStorage.removeItem("lastTrackId");
+    localStorage.removeItem("trackInfo");
+    window.location.href = "http://localhost:5502/logout";
+  };
+
+  return (
+    <div>
+      <h1>Spotify App</h1>
+      {trackInfo ? (
+        <div id="trackInfo">
+          <p id="trackName">Track: {trackInfo.name}</p>
+          <p id="artistName">Artist: {trackInfo.artist}</p>
+          <p id="albumName">Album: {trackInfo.album}</p>
+          <img
+            id="albumCover"
+            loading="lazy"
+            src={trackInfo.albumImageUrl}
+            className="w-album-cover-sm h-album-cover-sm md:w-album-cover-md md:h-album-cover-md lg:w-album-cover-lg lg:h-album-cover-lg"
+            alt="Album cover"
+          />
+        </div>
+      ) : (
+        <p>No track is currently playing.</p>
+      )}
+      {isLoggedIn && <button onClick={handleLogOut}>Log Out</button>}
+    </div>
+  );
+};
+
+export default Authenticated;

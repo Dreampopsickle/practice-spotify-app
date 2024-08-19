@@ -43,7 +43,7 @@ const tokenManager = new TokenManager({
   shopClientSecret,
   spotifyTokenUrl,
   axios,
-  queryString,
+  queryString
 });
 
 // Dependencies to be passed to route handlers
@@ -61,7 +61,7 @@ const routeDependencies = {
   queryString,
   axios,
   path,
-  tokenManager,
+  tokenManager
 };
 
 /// Verify that Spotify client ID and secret are set
@@ -94,7 +94,7 @@ app.use(
     secret: secretKey,
     resave: false,
     saveUninitialized: true,
-    cookie: { secure: false }, // Should be true in production with HTTPS
+    cookie: { secure: false } // Should be true in production with HTTPS
   })
 );
 
@@ -124,7 +124,9 @@ app.use(express.static("src"));
 
 /// Handle when someone gets the root (/) of our web server
 app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "src", "login.html"));
+  res.sendFile(
+    path.join(__dirname, "..", "my-spotify-app", "dist", "index.html")
+  );
 });
 
 /// Handle (kenny) logins
