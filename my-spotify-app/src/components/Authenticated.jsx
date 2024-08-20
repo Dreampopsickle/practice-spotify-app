@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 const Authenticated = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -6,6 +7,8 @@ const Authenticated = () => {
   const [lastTrackId, setLastTrackId] = useState(
     localStorage.getItem("lastTrackId")
   );
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     const initializeApp = async () => {
@@ -94,7 +97,7 @@ const Authenticated = () => {
     localStorage.removeItem("isLoggedIn");
     localStorage.removeItem("lastTrackId");
     localStorage.removeItem("trackInfo");
-    window.location.href = "http://localhost:5502/logout";
+    navigate("/login");
   };
 
   return (

@@ -101,7 +101,7 @@ app.use(
 // ----------------------------------------------------------------
 // Apply middleware for CORS, cookie parsing and serving static files
 app
-  .use(express.static(path.join(__dirname, "src"))) // look into the src dir for everything
+  .use(express.static(path.join(__dirname, "my-spotify-app", "dist"))) // look into the src dir for everything
   .use(cors())
   .use(cookieParser());
 
@@ -116,8 +116,8 @@ app.get("/api/isAuthenticated", (req, res) => {
 });
 // ----------------------------------------------------------------
 
-// We only want to serve static files
-app.use(express.static("src"));
+// // We only want to serve static files
+// app.use(express.static(path.join(__dirname, "my-spotify-app", "dist")));
 
 // ----------------------------------------------------------------
 // Set up our routes
@@ -181,6 +181,14 @@ ws.on("connection", function connection(client) {
 });
 
 // --------------------------------------------------------------------------
+
+// Serve the React app's index.html for all other paths
+app.get("*", (req, res) => {
+  res.sendFile(
+    path.join(__dirname, "..", "my-spotify-app", "dist", "index.html")
+  );
+});
+
 // Start it up
 server.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
