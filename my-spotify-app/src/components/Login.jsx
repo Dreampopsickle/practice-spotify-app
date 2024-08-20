@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 
 const Login = () => {
   const handleLogin = () => {
@@ -16,6 +17,7 @@ const Login = () => {
       >
         Login
       </button>
+      <Link to="/">Home</Link>
     </div>
   );
 };

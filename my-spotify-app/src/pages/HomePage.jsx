@@ -9,7 +9,6 @@ const HomePage = () => {
       <img src={weLogo} alt="Logo" className="size-36" />
       <nav>
         <Link to="/login">Login</Link>
-        <Link to="/authenticated">Authenticated Page</Link>
       </nav>
     </div>
   );
