@@ -101,15 +101,9 @@ const Authenticated = () => {
   };
 
   return (
-    <div>
-      <h1>Spotify App</h1>
+    <div className="flex flex-col items-center justify-center min-h-screen bg-slate-900 text-white p-4">
       {trackInfo ? (
-        <div id="trackInfo">
-          <p id="trackName" className="text-lg">
-            Track: {trackInfo.name}
-          </p>
-          <p id="artistName">Artist: {trackInfo.artist}</p>
-          <p id="albumName">Album: {trackInfo.album}</p>
+        <div id="trackInfo" className="text-center">
           <img
             id="albumCover"
             loading="lazy"
@@ -117,11 +111,27 @@ const Authenticated = () => {
             className="w-album-cover-sm h-album-cover-sm md:w-album-cover-md md:h-album-cover-md lg:w-album-cover-lg lg:h-album-cover-lg"
             alt="Album cover"
           />
+          <h2 id="trackName" className="text-2xl font-semibold mb-2">
+            Track: {trackInfo.name}
+          </h2>
+          <p id="artistName" className="text-lg text-gray-400 mb-1">
+            Artist: {trackInfo.artist}
+          </p>
+          <p id="albumName" className="text-md text-gray-500">
+            Album: {trackInfo.album}
+          </p>
         </div>
       ) : (
-        <p>No track is currently playing.</p>
+        <p className="text-lg">No track is currently playing.</p>
       )}
-      {isLoggedIn && <button onClick={handleLogOut}>Log Out</button>}
+      {isLoggedIn && (
+        <button
+          onClick={handleLogOut}
+          className="mt-6 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+        >
+          Log Out
+        </button>
+      )}
     </div>
   );
 };
