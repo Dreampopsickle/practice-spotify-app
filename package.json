@@ -1,7 +1,7 @@
 {
   "name": "practice-spotify-app",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "app.js",
   "scripts": {
     "build": "vite build",
     "start": "node index.js"
