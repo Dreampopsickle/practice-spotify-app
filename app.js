@@ -101,7 +101,7 @@ app.use(
 // ----------------------------------------------------------------
 // Apply middleware for CORS, cookie parsing and serving static files
 app
-  .use(express.static(path.join(__dirname, "my-spotify-app", "dist"))) // look into the src dir for everything
+  .use(express.static(path.join(__dirname, "..", "my-spotify-app", "dist"))) // look into the src dir for everything
   .use(cors())
   .use(cookieParser());
 
