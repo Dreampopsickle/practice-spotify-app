@@ -94,10 +94,11 @@ const Authenticated = () => {
   };
 
   const handleLogOut = () => {
+    const baseURL = window.location.origin;
     localStorage.removeItem("isLoggedIn");
     localStorage.removeItem("lastTrackId");
     localStorage.removeItem("trackInfo");
-    navigate("/login");
+    window.location.href = `${baseURL}/login`;
   };
 
   return (
