@@ -28,7 +28,7 @@ const clientSecret = process.env.SPOTIFY_CLIENT_SECRET;
 const shopClientId = process.env.SPOTIFY_SHOP_CLIENT_ID;
 const shopClientSecret = process.env.SPOTIFY_SHOP_CLIENT_SECRET;
 const redirectUri = process.env.SPOTIFY_REDIRECT_URI;
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 5173;
 
 // Spotify API URLs and session state key
 const spotifyAuthUrl = "https://accounts.spotify.com/authorize";

@@ -3,13 +3,16 @@ import { Link } from "react-router-dom";
 
 const Login = () => {
   const handleLogin = () => {
-    const baseURL = window.location.origin;
-    window.location.href = `${baseURL}/login`;
-    console.log("login triggered");
+    const isDevelopment = process.env.NODE_ENV === "development";
+    const loginURL = isDevelopment
+      ? `${window.location.origin}/mock-login.html`
+      : `${window.location.origin}/login`;
+    window.location.href = loginURL;
+    console.log("login triggered, redirecting to:", loginURL);
   };
 
   return (
-    <div className="flex flex-row justify-center my-5">
+    <div className="flex flex-col">
       <h1>Login to your Spotify Account</h1>
       <button
         onClick={handleLogin}
@@ -17,7 +20,6 @@ const Login = () => {
       >
         Login
       </button>
-      <Link to="/">Home</Link>
     </div>
   );
 };

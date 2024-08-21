@@ -105,7 +105,9 @@ const Authenticated = () => {
       <h1>Spotify App</h1>
       {trackInfo ? (
         <div id="trackInfo">
-          <p id="trackName">Track: {trackInfo.name}</p>
+          <p id="trackName" className="text-lg">
+            Track: {trackInfo.name}
+          </p>
           <p id="artistName">Artist: {trackInfo.artist}</p>
           <p id="albumName">Album: {trackInfo.album}</p>
           <img

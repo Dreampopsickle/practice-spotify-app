@@ -1,15 +1,20 @@
 import React from "react";
-import { Link } from "react-router-dom";
 import weLogo from "../assets/WElogo.png";
+import Login from "../components/Login";
 
 const HomePage = () => {
   return (
-    <div>
-      <h1>Welcome to the Home Page</h1>
+    <div className="flex flex-col items-center justify-center min-h-screen text-center">
+      <h1
+        className="text-2xl font-bold mb-4
+      "
+      >
+        Welcome to the Home Page
+      </h1>
       <img src={weLogo} alt="Logo" className="size-36" />
-      <nav>
-        <Link to="/login">Login</Link>
-      </nav>
+      <div>
+        <Login />
+      </div>
     </div>
   );
 };
