@@ -28,7 +28,7 @@ const clientSecret = process.env.SPOTIFY_CLIENT_SECRET;
 const shopClientId = process.env.SPOTIFY_SHOP_CLIENT_ID;
 const shopClientSecret = process.env.SPOTIFY_SHOP_CLIENT_SECRET;
 const redirectUri = process.env.SPOTIFY_REDIRECT_URI;
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 5173;
 
 // Spotify API URLs and session state key
 const spotifyAuthUrl = "https://accounts.spotify.com/authorize";
@@ -43,7 +43,7 @@ const tokenManager = new TokenManager({
   shopClientSecret,
   spotifyTokenUrl,
   axios,
-  queryString,
+  queryString
 });
 
 // Dependencies to be passed to route handlers
@@ -61,7 +61,7 @@ const routeDependencies = {
   queryString,
   axios,
   path,
-  tokenManager,
+  tokenManager
 };
 
 /// Verify that Spotify client ID and secret are set
@@ -94,14 +94,14 @@ app.use(
     secret: secretKey,
     resave: false,
     saveUninitialized: true,
-    cookie: { secure: false }, // Should be true in production with HTTPS
+    cookie: { secure: false } // Should be true in production with HTTPS
   })
 );
 
 // ----------------------------------------------------------------
 // Apply middleware for CORS, cookie parsing and serving static files
 app
-  .use(express.static(path.join(__dirname, "src"))) // look into the src dir for everything
+  .use(express.static(path.join(__dirname, "my-spotify-app", "dist"))) // look into the src dir for everything
   .use(cors())
   .use(cookieParser());
 
@@ -116,15 +116,17 @@ app.get("/api/isAuthenticated", (req, res) => {
 });
 // ----------------------------------------------------------------
 
-// We only want to serve static files
-app.use(express.static("src"));
+// // We only want to serve static files
+// app.use(express.static(path.join(__dirname, "my-spotify-app", "dist")));
 
 // ----------------------------------------------------------------
 // Set up our routes
 
 /// Handle when someone gets the root (/) of our web server
 app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "src", "login.html"));
+  res.sendFile(
+    path.join(__dirname, "..", "my-spotify-app", "dist", "index.html")
+  );
 });
 
 /// Handle (kenny) logins
@@ -179,6 +181,14 @@ ws.on("connection", function connection(client) {
 });
 
 // --------------------------------------------------------------------------
+
+// Serve the React app's index.html for all other paths
+app.get("*", (req, res) => {
+  res.sendFile(
+    path.join(__dirname, "..", "my-spotify-app", "dist", "index.html")
+  );
+});
+
 // Start it up
 server.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
