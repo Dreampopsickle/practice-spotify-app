@@ -1,7 +1,7 @@
 import React from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import { useState } from "react";
-import { Login, Authenticated } from "../src/components/";
+import { Login, Authenticated, Mock } from "../src/components";
 import HomePage from "../src/pages/HomePage";
 import weLogo from "./assets/WElogo.png";
 
@@ -12,6 +12,7 @@ const App = () => {
         <Route path="/" element={<HomePage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/authenticated" element={<Authenticated />} />
+        <Route path="/authenticated-mock" element={<Mock />} />
       </Routes>
     </Router>
   );
