@@ -1,9 +1,9 @@
 import React from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import { useState } from "react";
-import { Login, Authenticated, Mock } from "../src/components";
+import Login from "../src/components/Login";
+import Authenticated from "../src/components/Authenticated";
+import Mock from "../src/components/Mock";
 import HomePage from "../src/pages/HomePage";
-import weLogo from "./assets/WElogo.png";
 
 const App = () => {
   return (
