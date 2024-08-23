@@ -101,7 +101,7 @@ app.use(
 // ----------------------------------------------------------------
 // Apply middleware for CORS, cookie parsing and serving static files
 app
-  .use(express.static(path.join(__dirname, "..", "my-spotify-app", "dist"))) // look into the src dir for everything
+  .use(express.static(path.join(__dirname, "my-spotify-app", "dist"))) // look into the src dir for everything
   .use(cors())
   .use(cookieParser());
 
@@ -124,9 +124,7 @@ app.get("/api/isAuthenticated", (req, res) => {
 
 /// Handle when someone gets the root (/) of our web server
 app.get("/", (req, res) => {
-  res.sendFile(
-    path.join(__dirname, "..", "my-spotify-app", "dist", "index.html")
-  );
+  res.sendFile(path.join(__dirname, "my-spotify-app", "dist", "index.html"));
 });
 
 /// Handle (kenny) logins
