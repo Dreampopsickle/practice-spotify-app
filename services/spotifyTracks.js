@@ -3,7 +3,7 @@ let lastTrackId = null; // Store the ID of the last track played
 let retryAfter = 0;
 let cache = {
   data: null,
-  expiry: null,
+  expiry: null
 };
 
 //Utility functions for cache management
@@ -47,8 +47,8 @@ const getCurrentTrackFromSpotify = async (dependencies) => {
       "https://api.spotify.com/v1/me/player/currently-playing",
       {
         headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
+          Authorization: `Bearer ${accessToken}`
+        }
       }
     );
 
@@ -66,7 +66,7 @@ const getCurrentTrackFromSpotify = async (dependencies) => {
       albumImageUrl: response.data.item.album.images[0].url,
       isPlaying: response.data.is_playing,
       trackDuration: response.data.item.duration_ms,
-      trackProgress: response.data.progress_ms,
+      trackProgress: response.data.progress_ms
     };
 
     cache.data = trackData;

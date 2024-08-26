@@ -7,7 +7,7 @@ class TokenManager {
     axios,
     queryString,
     shopClientId,
-    shopClientSecret,
+    shopClientSecret
   }) {
     // Initialize TokenManager with Spotify API credentials and necessary utilities
     this.clientId = clientId; // mine
@@ -60,7 +60,7 @@ class TokenManager {
         spotifyTokenUrl,
         queryString.stringify({
           grant_type: "refresh_token",
-          refresh_token: refreshToken, // replaces currentRefreshToken
+          refresh_token: refreshToken // replaces currentRefreshToken
         }),
         {
           headers: {
@@ -69,8 +69,8 @@ class TokenManager {
               "Basic " +
               Buffer.from(shopClientId + ":" + shopClientSecret).toString(
                 "base64"
-              ),
-          },
+              )
+          }
         }
       );
 
@@ -78,7 +78,7 @@ class TokenManager {
       this.setTokens({
         accessToken: response.data.access_token,
         refreshToken: response.data.refresh_token || this.refreshToken, //Use new refresh token if available, else use old
-        expiresIn: response.data.expires_in,
+        expiresIn: response.data.expires_in
       });
       return this.accessToken;
     } catch (error) {

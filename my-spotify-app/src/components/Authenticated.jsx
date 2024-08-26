@@ -109,7 +109,7 @@ const Authenticated = () => {
             id="albumCover"
             loading="lazy"
             src={trackInfo.albumImageUrl}
-            className="w-album-cover-sm h-album-cover-sm md:w-album-cover-md md:h-album-cover-md lg:w-album-cover-lg lg:h-album-cover-lg"
+            className="w-album-cover-sm h-album-cover-sm md:w-album-cover-md md:h-album-cover-md lg:w-album-cover-lg lg:h-album-cover-lg mb-10"
             alt="Album cover"
           />
           <h2 id="trackName" className="text-2xl font-semibold mb-2">
