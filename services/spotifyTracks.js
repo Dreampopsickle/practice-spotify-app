@@ -71,7 +71,7 @@ const getCurrentTrackFromSpotify = async (dependencies) => {
 
     cache.data = trackData;
     cache.expiry = new Date(new Date().getTime() + 5 * 60 * 1000);
-    const fixedCacheDuration = 120 * 1000;
+    const fixedCacheDuration = 30 * 1000;
     setCache(cacheKey, trackData, fixedCacheDuration); // 120 seconds cache duration
     return trackData;
   } catch (error) {
@@ -123,16 +123,26 @@ const handletrackData = (currentTrack, ws) => {
 //Scheduling and queue management
 
 const scheduleNextFetch = (dependencies, ws) => {
-  const interval = 60000;
+  const interval = 30000;
   setTimeout(() => fetchAndBroadcastCurrentPlaying(dependencies, ws), interval);
 };
 const requestQueue = [];
-const processQueue = () => {
+const processQueue = (ws) => {
   if (requestQueue.length === 0 || retryAfter > Date.now()) {
     return;
   }
   const requestFunction = requestQueue.shift();
-  requestFunction().finally(processQueue);
+  requestFunction().finally(processQueue(ws));
+  startFrequentCacheChecks(ws);
+};
+// Frequent Cache checks for instant update
+const startFrequentCacheChecks = (ws) => {
+  setInterval(() => {
+    const cachedTrackInfo = getCache("current_track");
+    if (cachedTrackInfo && ws) {
+      handletrackData(cachedTrackInfo, ws);
+    }
+  }, 5000); // check cache every 5 seconds for instant update
 };
 
 //Error handling
