@@ -98,13 +98,16 @@ const Authenticated = () => {
     localStorage.removeItem("isLoggedIn");
     localStorage.removeItem("lastTrackId");
     localStorage.removeItem("trackInfo");
-    window.location.href = `${baseURL}/login`;
+    window.location.href = `${baseURL}/`;
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-slate-900 text-white p-4">
+    <div className="flex flex-col items-center justify-center min-h-screen bg-slate-900">
       {trackInfo ? (
-        <div id="trackInfo" className="text-center">
+        <div
+          id="trackInfo"
+          className="flex flex-col items-center justify-center text-white p-4"
+        >
           <img
             id="albumCover"
             loading="lazy"
