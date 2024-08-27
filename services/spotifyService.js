@@ -12,5 +12,5 @@ const refreshTokenIfNeeded = async (dependencies) => {
 };
 
 module.exports = {
-  refreshTokenIfNeeded,
+  refreshTokenIfNeeded
 };

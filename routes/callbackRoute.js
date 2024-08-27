@@ -15,7 +15,7 @@ const callbackRoute = async (req, res, dependencies) => {
     queryString,
     axios,
     path,
-    tokenManager,
+    tokenManager
   } = dependencies;
 
   // Extract authorization code and state form query parameters
@@ -39,7 +39,7 @@ const callbackRoute = async (req, res, dependencies) => {
       queryString.stringify({
         code: code,
         redirect_uri: redirectUri,
-        grant_type: "authorization_code",
+        grant_type: "authorization_code"
       }),
       {
         headers: {
@@ -48,8 +48,8 @@ const callbackRoute = async (req, res, dependencies) => {
             "Basic " +
             Buffer.from(shopClientId + ":" + shopClientSecret).toString(
               "base64"
-            ),
-        },
+            )
+        }
       }
     );
 
@@ -57,7 +57,7 @@ const callbackRoute = async (req, res, dependencies) => {
     tokenManager.setTokens({
       accessToken: tokenResponse.data.access_token,
       refreshToken: tokenResponse.data.refresh_token,
-      expiresIn: tokenResponse.data.expires_in,
+      expiresIn: tokenResponse.data.expires_in
     });
     // Check for authentication for client side relay
     req.session.isAuthenticated = true;

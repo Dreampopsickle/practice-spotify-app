@@ -98,18 +98,21 @@ const Authenticated = () => {
     localStorage.removeItem("isLoggedIn");
     localStorage.removeItem("lastTrackId");
     localStorage.removeItem("trackInfo");
-    window.location.href = `${baseURL}/login`;
+    window.location.href = `${baseURL}/`;
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-slate-900 text-white p-4">
+    <div className="flex flex-col items-center justify-center min-h-screen bg-slate-900">
       {trackInfo ? (
-        <div id="trackInfo" className="text-center">
+        <div
+          id="trackInfo"
+          className="flex flex-col items-center justify-center text-white p-4"
+        >
           <img
             id="albumCover"
             loading="lazy"
             src={trackInfo.albumImageUrl}
-            className="w-album-cover-sm h-album-cover-sm md:w-album-cover-md md:h-album-cover-md lg:w-album-cover-lg lg:h-album-cover-lg"
+            className="w-album-cover-sm h-album-cover-sm md:w-album-cover-md md:h-album-cover-md lg:w-album-cover-lg lg:h-album-cover-lg mb-10"
             alt="Album cover"
           />
           <h2 id="trackName" className="text-2xl font-semibold mb-2">

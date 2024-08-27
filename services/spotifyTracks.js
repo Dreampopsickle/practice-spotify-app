@@ -3,7 +3,7 @@ let lastTrackId = null; // Store the ID of the last track played
 let retryAfter = 0;
 let cache = {
   data: null,
-  expiry: null,
+  expiry: null
 };
 
 //Utility functions for cache management
@@ -47,8 +47,8 @@ const getCurrentTrackFromSpotify = async (dependencies) => {
       "https://api.spotify.com/v1/me/player/currently-playing",
       {
         headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
+          Authorization: `Bearer ${accessToken}`
+        }
       }
     );
 
@@ -66,12 +66,12 @@ const getCurrentTrackFromSpotify = async (dependencies) => {
       albumImageUrl: response.data.item.album.images[0].url,
       isPlaying: response.data.is_playing,
       trackDuration: response.data.item.duration_ms,
-      trackProgress: response.data.progress_ms,
+      trackProgress: response.data.progress_ms
     };
 
     cache.data = trackData;
     cache.expiry = new Date(new Date().getTime() + 5 * 60 * 1000);
-    const fixedCacheDuration = 120 * 1000;
+    const fixedCacheDuration = 30 * 1000;
     setCache(cacheKey, trackData, fixedCacheDuration); // 120 seconds cache duration
     return trackData;
   } catch (error) {
@@ -123,16 +123,26 @@ const handletrackData = (currentTrack, ws) => {
 //Scheduling and queue management
 
 const scheduleNextFetch = (dependencies, ws) => {
-  const interval = 60000;
+  const interval = 30000;
   setTimeout(() => fetchAndBroadcastCurrentPlaying(dependencies, ws), interval);
 };
 const requestQueue = [];
-const processQueue = () => {
+const processQueue = (ws) => {
   if (requestQueue.length === 0 || retryAfter > Date.now()) {
     return;
   }
   const requestFunction = requestQueue.shift();
-  requestFunction().finally(processQueue);
+  requestFunction().finally(processQueue(ws));
+  startFrequentCacheChecks(ws);
+};
+// Frequent Cache checks for instant update
+const startFrequentCacheChecks = (ws) => {
+  setInterval(() => {
+    const cachedTrackInfo = getCache("current_track");
+    if (cachedTrackInfo && ws) {
+      handletrackData(cachedTrackInfo, ws);
+    }
+  }, 5000); // check cache every 5 seconds for instant update
 };
 
 //Error handling

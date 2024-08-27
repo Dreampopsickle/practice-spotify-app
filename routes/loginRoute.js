@@ -7,7 +7,7 @@ const loginRoute = (req, res, dependencies) => {
     shopClientId,
     redirectUri,
     spotifyAuthUrl,
-    queryString,
+    queryString
   } = dependencies;
 
   // Generate a random state string for CSRF protection
@@ -24,7 +24,7 @@ const loginRoute = (req, res, dependencies) => {
     client_id: shopClientId,
     scope: "user-read-currently-playing user-read-playback-state",
     redirect_uri: redirectUri,
-    state: state,
+    state: state
   };
 
   // construct full URL for redirection
